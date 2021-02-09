@@ -1,0 +1,16 @@
+[
+{
+  "modid": "terracustomtreerepo",
+  "name": "Terra++: Custom Tree Repo addon",
+  "description": "A Terra++ addon that replace the tree generation. It includes features like improving the tree generation, by mixing vanilla Minecraft trees and trees from the Custom Tree Repository (https://www.planetminecraft.com/project/native-trees-of-europe-template-repository-1779952/) provided by @lentebriesje, offsetting trees from roads and disabling trees generating inside buildings (provided if the building is too big)",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://buildtheearth.net",
+  "updateUrl": "",
+  "authorList": ["DavixDevelop"],
+  "credits": "lentebriesje for providing the Custom Tree Repository. Tree map made with the Present and future Köppen-Geiger climate classification maps at 1-km resolution: Beck, Hylke E.; E. Zimmermann, Niklaus; McVicar, Tim R.; Vergopolan, Noemi; Berg, Alexis; Wood, Eric F. (2018): Present and future Köppen-Geiger climate classification maps at 1-km resolution. figshare. Dataset. https://doi.org/10.6084/m9.figshare.6396959 ",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

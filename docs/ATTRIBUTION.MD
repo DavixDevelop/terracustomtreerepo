@@ -2,14 +2,14 @@
 
 ## Tree repositories
 
-Currently only one tree repository is being used, with more to be expected in the future
+Currently, only one tree repository is being used, with more to be expected in the future
 
 ### [Custom Tree Repository](https://www.planetminecraft.com/project/native-trees-of-europe-template-repository-1779952/)
 
 All the tree schematics from the [Custom Tree Repository](https://www.planetminecraft.com/project/native-trees-of-europe-template-repository-1779952/) were kindly provided by [lentebriesje](https://www.planetminecraft.com/member/lentebriesje/). Be sure to visit his tree repository.
 
 ## Data sources
-The following data source's were used to create the tree map:
+The following data sources were used to create the treemap:
 
 ### [Köppen-Geiger Climate Classification 1976-2000](https://datacatalog.worldbank.org/dataset/world-maps-köppen-geiger-climate-classification)
 Attribution statement:

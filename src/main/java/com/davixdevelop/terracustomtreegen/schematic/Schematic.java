@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import io.github.terra121.TerraMod;
+import net.buildtheearth.terraplusplus.TerraMod;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;

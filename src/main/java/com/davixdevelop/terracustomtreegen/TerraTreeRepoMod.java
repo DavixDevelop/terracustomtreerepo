@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = TerraTreeRepoMod.MODID, name = TerraTreeRepoMod.NAME, version = TerraTreeRepoMod.VERSION, dependencies = "required-after:terra121")
+@Mod(modid = TerraTreeRepoMod.MODID, name = TerraTreeRepoMod.NAME, version = TerraTreeRepoMod.VERSION, dependencies = "required-after:terraplusplus")
 public class TerraTreeRepoMod
 {
     public static final String MODID = "terracustomtreerepo";

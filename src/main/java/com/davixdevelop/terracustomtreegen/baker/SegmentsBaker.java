@@ -3,28 +3,28 @@ package com.davixdevelop.terracustomtreegen.baker;
 import com.davixdevelop.terracustomtreegen.SegmentLinearFunc;
 import com.davixdevelop.terracustomtreegen.TerraTreeRepoMod;
 import io.github.opencubicchunks.cubicchunks.api.util.Coords;
-import io.github.terra121.dataset.IElementDataset;
-import io.github.terra121.dataset.IScalarDataset;
-import io.github.terra121.dataset.geojson.GeoJsonObject;
-import io.github.terra121.dataset.geojson.Geometry;
-import io.github.terra121.dataset.geojson.geometry.*;
-import io.github.terra121.dataset.geojson.object.Feature;
-import io.github.terra121.dataset.geojson.object.FeatureCollection;
-import io.github.terra121.generator.CachedChunkData.Builder;
-import io.github.terra121.generator.GeneratorDatasets;
-import io.github.terra121.generator.data.IEarthDataBaker;
-import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.OutOfProjectionBoundsException;
-import io.github.terra121.util.CornerBoundingBox2d;
-import io.github.terra121.util.bvh.Bounds2d;
+import net.buildtheearth.terraplusplus.dataset.IElementDataset;
+import net.buildtheearth.terraplusplus.dataset.IScalarDataset;
+import net.buildtheearth.terraplusplus.dataset.geojson.GeoJsonObject;
+import net.buildtheearth.terraplusplus.dataset.geojson.Geometry;
+import net.buildtheearth.terraplusplus.dataset.geojson.geometry.*;
+import net.buildtheearth.terraplusplus.dataset.geojson.object.Feature;
+import net.buildtheearth.terraplusplus.dataset.geojson.object.FeatureCollection;
+import net.buildtheearth.terraplusplus.generator.CachedChunkData.Builder;
+import net.buildtheearth.terraplusplus.generator.EarthGeneratorPipelines;
+import net.buildtheearth.terraplusplus.generator.GeneratorDatasets;
+import net.buildtheearth.terraplusplus.generator.data.IEarthDataBaker;
+import net.buildtheearth.terraplusplus.projection.GeographicProjection;
+import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
+import net.buildtheearth.terraplusplus.util.CornerBoundingBox2d;
+import net.buildtheearth.terraplusplus.util.bvh.Bounds2d;
 import net.minecraft.util.math.ChunkPos;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static io.github.terra121.generator.EarthGeneratorPipelines.KEY_DATASET_OSM_RAW;
-import static io.github.terra121.generator.EarthGeneratorPipelines.KEY_DATASET_TREE_COVER;
+import net.buildtheearth.terraplusplus.generator.EarthGeneratorPipelines;
 
 /**
  * A DataBaker that convert raw osm data to segments, and save's them under a custom key
@@ -104,7 +104,7 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 		if(PROJECTION == null)
 			PROJECTION = datasets.projection();
 
-		CompletableFuture<double[]> treeCoverF = datasets.<IScalarDataset>getCustom(KEY_DATASET_TREE_COVER).getAsync(boundsGeo, 16, 16);
+		CompletableFuture<double[]> treeCoverF = datasets.<IScalarDataset>getCustom(EarthGeneratorPipelines.KEY_DATASET_TREE_COVER).getAsync(boundsGeo, 16, 16);
 		boolean hasTrees = false;
 
 		double[] treeCover = treeCoverF.join();
@@ -118,7 +118,7 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 		if(!hasTrees)
 			return null;
 
-		return datasets.<IElementDataset<GeoJsonObject[]>>getCustom(KEY_DATASET_OSM_RAW)
+		return datasets.<IElementDataset<GeoJsonObject[]>>getCustom(EarthGeneratorPipelines.KEY_DATASET_OSM_RAW)
 				.getAsync(bounds.expand(16.0d).toCornerBB(datasets.projection(), false).toGeo());
 	}
 	

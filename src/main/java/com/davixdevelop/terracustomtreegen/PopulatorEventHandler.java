@@ -1,9 +1,9 @@
 package com.davixdevelop.terracustomtreegen;
 
 import com.davixdevelop.terracustomtreegen.baker.SegmentsBaker;
-import io.github.terra121.event.InitEarthRegistryEvent;
-import io.github.terra121.generator.data.IEarthDataBaker;
-import io.github.terra121.generator.populate.IEarthPopulator;
+import net.buildtheearth.terraplusplus.event.InitEarthRegistryEvent;
+import net.buildtheearth.terraplusplus.generator.data.IEarthDataBaker;
+import net.buildtheearth.terraplusplus.generator.populate.IEarthPopulator;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class PopulatorEventHandler {

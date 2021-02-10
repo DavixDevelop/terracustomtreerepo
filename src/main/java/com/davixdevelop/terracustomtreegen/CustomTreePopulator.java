@@ -7,13 +7,13 @@ import com.google.common.collect.ImmutableSet;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorldServer;
-import io.github.terra121.dep.net.daporkchop.lib.common.ref.Ref;
-import io.github.terra121.dep.net.daporkchop.lib.common.ref.ThreadRef;
-import io.github.terra121.generator.CachedChunkData;
-import io.github.terra121.generator.EarthGenerator;
-import io.github.terra121.generator.EarthGeneratorPipelines;
-import io.github.terra121.generator.data.TreeCoverBaker;
-import io.github.terra121.generator.populate.IEarthPopulator;
+import net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.common.ref.Ref;
+import net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.common.ref.ThreadRef;
+import net.buildtheearth.terraplusplus.generator.CachedChunkData;
+import net.buildtheearth.terraplusplus.generator.EarthGenerator;
+import net.buildtheearth.terraplusplus.generator.EarthGeneratorPipelines;
+import net.buildtheearth.terraplusplus.generator.data.TreeCoverBaker;
+import net.buildtheearth.terraplusplus.generator.populate.IEarthPopulator;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -35,6 +35,11 @@ public class CustomTreePopulator implements IEarthPopulator {
             Blocks.STAINED_HARDENED_CLAY,
             Blocks.SNOW,
             Blocks.MYCELIUM);
+
+	public static final Set<Block> WOOD_BLOCKS = ImmutableSet.of(
+			Blocks.LOG,
+			Blocks.LOG2
+	);
 
 	protected static final Ref<byte[]> RNG_CACHE = ThreadRef.soft(() -> new byte[16 * 16]);
 	
@@ -77,10 +82,11 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 
 		if(trees.size() > 8)
-			trees = this.treeBounds(trees, random, world, pos, 1);
+			trees = this.treeBounds(trees, random, world, pos, 1, 2);
 
 
 		if(trees.size() > 0) {
+
 			Set<SegmentLinearFunc> roads = data.getCustom(SegmentsBaker.KEY_CUSTOM_TREE_REPO_ROAD_SEGMENTS, SegmentsBaker.FALLBACK_CUSTOM_TREE_REPO_SEGMENTS);
 			Set<SegmentLinearFunc> freeways = data.getCustom(SegmentsBaker.KEY_CUSTOM_TREE_REPO_FREEWAY_SEGMENTS, SegmentsBaker.FALLBACK_CUSTOM_TREE_REPO_SEGMENTS);
 			Set<SegmentLinearFunc> paths = data.getCustom(SegmentsBaker.KEY_CUSTOM_TREE_REPO_PATH_SEGMENTS, SegmentsBaker.FALLBACK_CUSTOM_TREE_REPO_SEGMENTS);
@@ -176,7 +182,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 	 * @param positiveOffset The offset between trees
 	 * @return Modified list of trees
      */
-    protected List<CustomTreeGen> treeBounds(List<CustomTreeGen> trees, Random random, World world, CubePos pos, int positiveOffset) {
+    protected List<CustomTreeGen> treeBounds(List<CustomTreeGen> trees, Random random, World world, CubePos pos, int positiveOffset, int negativeOffset) {
 		Collections.shuffle(trees);
 		try {
 			List<CustomTreeGen> diff = new ArrayList<>();
@@ -185,10 +191,12 @@ public class CustomTreePopulator implements IEarthPopulator {
 				CustomTreeGen a = ai.next();
 
 				boolean add = true;
+				boolean vacinity = false;
 
 				for (CustomTreeGen b : trees){
 					if(a != b){
 						double difference = Math.sqrt(Math.pow(Math.abs(b.top1.getZ() - a.top1.getZ()), 2) + Math.pow(Math.abs(a.top1.getX() - b.top1.getX()), 2)) - a.getCanopyRadius() - b.getCanopyRadius();
+
 						if(difference < (random.nextInt(4) * -1)) {
 							SegmentLinearFunc seg = new SegmentLinearFunc(new double[]{a.top1.getX(), a.top1.getZ()}, new double[]{b.top1.getX(), b.top1.getZ()}, 1);
 							int[] A = {a.top1.getX(), a.top1.getZ()};
@@ -221,18 +229,21 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 								a.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
 								a.repositioned = true;
+								vacinity = checkVicinity(a, world, negativeOffset);
 							}else if(seg.isConstantX()) {
 								double A2y = (A[1] > B[1]) ? B[1] + b.getCanopyRadius() + positiveOffset + a.getCanopyRadius() : B[1] - b.getCanopyRadius() - positiveOffset - a.getCanopyRadius();
 								int actualX = A[0];
 								int actualZ = (int)Math.round(A2y);
 								a.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
 								a.repositioned = true;
+								vacinity = checkVicinity(a, world, negativeOffset);
 							}else if(seg.isConstantY()) {
 								double A2x = (A[0] > B[0]) ? B[0] + b.getCanopyRadius() + positiveOffset + a.getCanopyRadius() : B[0] - b.getCanopyRadius() - positiveOffset - a.getCanopyRadius();
 								int actualX = (int)Math.round(A2x);
 								int actualZ = A[1];
 								a.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
 								a.repositioned = true;
+								vacinity = checkVicinity(a, world, negativeOffset);
 							}
 
 							/*add = false;
@@ -240,7 +251,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 
 
-						}else if(a.repositioned && difference < positiveOffset){
+						}else if(a.repositioned && difference < positiveOffset || vacinity){
 							add = false;
 							break;
 						}
@@ -325,6 +336,34 @@ public class CustomTreePopulator implements IEarthPopulator {
     	
     	return trees;
     }
+
+    protected boolean checkVicinity(CustomTreeGen gen, World world, int negativeOffset){
+
+    	int offset = gen.getCanopyRadius();
+    	if(gen.getCanopyRadius() - negativeOffset > 0){
+    		offset = gen.getCanopyRadius() - negativeOffset;
+		}
+		int rl = gen.top1.getX() + offset;
+		int tl = gen.top1.getZ() + offset;
+
+		for(int x = gen.top1.getX() - offset; x <= rl; x++) {
+			for(int z = gen.top1.getZ() - offset; z <= tl; z++) {
+				int y_limit = gen.top1.getY() + 5;
+				for(int y = gen.top1.getY(); y < y_limit; y++){
+
+					BlockPos g = new BlockPos(x, y, z);
+
+					IBlockState state = world.getBlockState(g);
+
+					//Check if block is log
+					if(WOOD_BLOCKS.contains(state.getBlock())) {
+						return true;
+					}
+				}
+			}
+		}
+    	return false;
+	}
 	
     /**
      * Checks if trees lies less than the offset from the segment and moves it back, specified by the positiveOffset and returns them
@@ -491,6 +530,10 @@ public class CustomTreePopulator implements IEarthPopulator {
     		    		
     		    		//Check if distance between tree and road edge is less than 2m
     		    		if(a - gen.getCanopyRadius() <= offset) {
+    		    			it.remove();
+    		    			continue;
+
+    		    			/*
     		    			double a3 = Math.abs(T[1] - P[1]);
     		    			double alpha = Math.toDegrees(Math.acos(a3 / a));
     		    			
@@ -506,11 +549,15 @@ public class CustomTreePopulator implements IEarthPopulator {
     						
             				gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
     						gen.movedBack = true;
-    						continue;
+    						continue;*/
     		    		}
 					} else if(T[1] == P[1]) { //Constant y
 						
 						if(Math.abs(T[0] - P[0]) - gen.getCanopyRadius() <= offset) {
+							it.remove();
+							continue;
+
+							/*
 							double T2x = (P[0] < T[0]) ? P[0] + positiveOffset + gen.getCanopyRadius() : P[0] - positiveOffset - gen.getCanopyRadius();
     						
     						int actualX = (int)Math.round(T2x);
@@ -518,12 +565,15 @@ public class CustomTreePopulator implements IEarthPopulator {
 
     						gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
     						gen.movedBack = true;
-    						continue;
+    						continue;*/
 						}
 						
 					} else if(T[0] == P[0]) { //Constant x
 						
 						if(Math.abs(T[1] - P[1]) - gen.getCanopyRadius() <= offset) {
+							it.remove();
+							continue;
+							/*
 							double T2y = (P[1] < T[1]) ? P[1] + positiveOffset + gen.getCanopyRadius() : P[1] - positiveOffset + gen.getCanopyRadius();
     						
     						int actualX = T[0];
@@ -531,7 +581,7 @@ public class CustomTreePopulator implements IEarthPopulator {
     						
     						gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
     						gen.movedBack = true;
-    						continue;
+    						continue;*/
 						}
 						
 					}

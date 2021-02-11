@@ -380,7 +380,7 @@ public class CustomTreeRepository {
 		ObjectInputStream inputStream = new ObjectInputStream(stream);
 		TreeRepoData dat = (TreeRepoData)inputStream.readObject();
 		inputStream.close();
-		TerraMod.LOGGER.info("Stored schematics: " + dat.trees.size());
+		TerraTreeRepoMod.LOGGER.info("Loaded " + dat.trees.size() + " tree schematics");
 		return dat;
 	}
 	

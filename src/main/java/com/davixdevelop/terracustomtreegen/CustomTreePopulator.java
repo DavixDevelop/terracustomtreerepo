@@ -38,7 +38,13 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 	public static final Set<Block> WOOD_BLOCKS = ImmutableSet.of(
 			Blocks.LOG,
-			Blocks.LOG2
+			Blocks.LOG2,
+			Blocks.OAK_FENCE,
+			Blocks.BIRCH_FENCE,
+			Blocks.SPRUCE_FENCE,
+			Blocks.ACACIA_FENCE,
+			Blocks.JUNGLE_FENCE,
+			Blocks.DARK_OAK_FENCE
 	);
 
 	protected static final Ref<byte[]> RNG_CACHE = ThreadRef.soft(() -> new byte[16 * 16]);
@@ -68,10 +74,12 @@ public class CustomTreePopulator implements IEarthPopulator {
             for (int z = 0; z < 16; z++, i++) {
                 if ((rng[i] & 0xFF) < (treeCover[i] & 0xFF)) {
 
-                	BlockPos blockPos = ((ICubicWorld) world).getSurfaceForCube(pos, x, z, 0, ICubicWorld.SurfaceType.OPAQUE);
+                	/*BlockPos blockPos = ((ICubicWorld) world).getSurfaceForCube(pos, x, z, 0, ICubicWorld.SurfaceType.OPAQUE);
                 	if(blockPos != null)
-                		trees.add(new CustomTreeGen((treeCover[i] / 1.50d) / 255.0d, blockPos));
+                		trees.add(new CustomTreeGen((treeCover[i] / 1.50d) / 255.0d, blockPos));*/
 
+                	BlockPos blockPos = new BlockPos(pos.getMinBlockX() + x, quickElev(world, pos.getMinBlockX() + x, pos.getMinBlockZ() + z, pos.getMinBlockY() - 1, pos.getMaxBlockY() + 1) + 1, pos.getMinBlockZ() + z);
+                	trees.add(new CustomTreeGen((treeCover[i] / 1.50d) / 255.0d, blockPos));
                 }
             }
         }
@@ -82,7 +90,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 
 		if(trees.size() > 8)
-			trees = this.treeBounds(trees, random, world, pos, 1, 2);
+			trees = this.treeBounds(trees, random, world, pos, 1, -1);
 
 
 		if(trees.size() > 0) {
@@ -94,16 +102,16 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 
 			if(roads.size() > 0) {
-				trees = offsetTrees(trees, roads, Blocks.CONCRETE, 2, 5, world, pos);
+				trees = offsetTrees(trees, roads, Blocks.CONCRETE, 2, 5,1, world, pos);
         	}
 
 
         	if(paths.size() > 0) {
-        		trees = offsetTrees(trees, paths, Blocks.GRASS_PATH, 1, 1, world, pos);
+        		trees = offsetTrees(trees, paths, Blocks.GRASS_PATH, 1, 2,1, world, pos);
         	}
         	
         	if(freeways.size() > 0) {
-        		trees = offsetTrees(trees, freeways, Blocks.CONCRETE, 8, 9, world, pos);
+        		trees = offsetTrees(trees, freeways, Blocks.CONCRETE, 8, 9,1, world, pos);
         	}
         	
         	if(buildings.size() > 0) {
@@ -154,9 +162,31 @@ public class CustomTreePopulator implements IEarthPopulator {
             	((WorldGenAbstractTree)gen.treeGen).generateSaplings(world, random, gen.top1);
             }
     	}else {
-			Schematic.pasteSchematic(world, gen.top1.getX(), gen.top1.getY(), gen.top1.getZ(), (Schematic)gen.treeGen, random.nextInt(4));
+    		BlockPos blockPos = new BlockPos(gen.top1.getX(), gen.top1.getY(), gen.top1.getZ());
+    		IBlockState state = world.getBlockState(blockPos.down());
+    		if(state.getBlock() == Blocks.GRASS || EXTRA_SURFACE.contains(state.getBlock()))
+				Schematic.pasteSchematic(world, gen.top1.getX(), gen.top1.getY(), gen.top1.getZ(), (Schematic)gen.treeGen, random.nextInt(4));
     	}
     }
+
+    protected  BlockPos surfaceBlock(int x, int z, World world, CubePos pos){
+		return new BlockPos(x, this.quickElev(world, x, z, pos.getMinBlockY() - 10, pos.getMaxBlockY() + 10) + 1, z);
+		/*
+		if(x < pos.getMinBlockX() || x > pos.getMaxBlockX() || z < pos.getMinBlockZ() || z > pos.getMaxBlockZ()) {
+			return new BlockPos(x, this.quickElev(world, x, z, pos.getMinBlockY() - 10, pos.getMaxBlockY() +10) + 1, z);
+		}
+
+		int offsetX = Math.abs(x - pos.getMinBlockX());
+		int offsetZ = Math.abs(z - pos.getMinBlockZ());
+
+		BlockPos blockPos =  ((ICubicWorld) world).getSurfaceForCube(pos, offsetX, offsetZ, 0, ICubicWorld.SurfaceType.OPAQUE);
+		if(blockPos == null)
+			return new BlockPos(x, this.quickElev(world, x, z, pos.getMinBlockY() - 10, pos.getMaxBlockY()+ 10) + 1, z);
+		else
+			return blockPos;
+
+		 */
+	}
     
     protected int quickElev(World world, int x, int z, int low, int high) {
         high++;
@@ -172,7 +202,8 @@ public class CustomTreePopulator implements IEarthPopulator {
 
         return low;
     }
-    
+
+
     /**
      * Checks if trees canopy spread interact, and if they do, remove them
      * @param  trees List of trees
@@ -180,6 +211,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 	 * @param  world The Minecraft world
 	 * @param  pos The cube position
 	 * @param positiveOffset The offset between trees
+	 * @param negativeOffset The negative offset to decrease the scan are around the tree
 	 * @return Modified list of trees
      */
     protected List<CustomTreeGen> treeBounds(List<CustomTreeGen> trees, Random random, World world, CubePos pos, int positiveOffset, int negativeOffset) {
@@ -197,7 +229,8 @@ public class CustomTreePopulator implements IEarthPopulator {
 					if(a != b){
 						double difference = Math.sqrt(Math.pow(Math.abs(b.top1.getZ() - a.top1.getZ()), 2) + Math.pow(Math.abs(a.top1.getX() - b.top1.getX()), 2)) - a.getCanopyRadius() - b.getCanopyRadius();
 
-						if(difference < (random.nextInt(4) * -1)) {
+						//(random.nextInt(4) * -1)
+						if(difference < 2) {
 							SegmentLinearFunc seg = new SegmentLinearFunc(new double[]{a.top1.getX(), a.top1.getZ()}, new double[]{b.top1.getX(), b.top1.getZ()}, 1);
 							int[] A = {a.top1.getX(), a.top1.getZ()};
 							int[] B = {b.top1.getX(), b.top1.getZ()};
@@ -227,29 +260,29 @@ public class CustomTreePopulator implements IEarthPopulator {
 								int actualX = (int)Math.round(A2x);
 								int actualZ = (int)Math.round(A2y);
 
-								a.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+								//a.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+								a.top1 = surfaceBlock(actualX, actualZ, world, pos);
 								a.repositioned = true;
 								vacinity = checkVicinity(a, world, negativeOffset);
+
+
 							}else if(seg.isConstantX()) {
 								double A2y = (A[1] > B[1]) ? B[1] + b.getCanopyRadius() + positiveOffset + a.getCanopyRadius() : B[1] - b.getCanopyRadius() - positiveOffset - a.getCanopyRadius();
 								int actualX = A[0];
 								int actualZ = (int)Math.round(A2y);
-								a.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+								//a.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+								a.top1 = surfaceBlock(actualX, actualZ, world, pos);
 								a.repositioned = true;
 								vacinity = checkVicinity(a, world, negativeOffset);
 							}else if(seg.isConstantY()) {
 								double A2x = (A[0] > B[0]) ? B[0] + b.getCanopyRadius() + positiveOffset + a.getCanopyRadius() : B[0] - b.getCanopyRadius() - positiveOffset - a.getCanopyRadius();
 								int actualX = (int)Math.round(A2x);
 								int actualZ = A[1];
-								a.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+								//a.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+								a.top1 = surfaceBlock(actualX, actualZ, world, pos);
 								a.repositioned = true;
 								vacinity = checkVicinity(a, world, negativeOffset);
 							}
-
-							/*add = false;
-							break;*/
-
-
 
 						}else if(a.repositioned && difference < positiveOffset || vacinity){
 							add = false;
@@ -266,77 +299,21 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 			return diff;
 
-			/*
-			for(int a = 0; a < trees.size(); a++) {
-				for(int b = 0; b < trees.size(); b++) {
 
-					if(a != b) {
-						//If tree a and b canopy circle intersect, remove b tree
-						if(Math.sqrt(Math.pow(Math.abs(trees.get(b).top1.getZ() - trees.get(a).top1.getZ()), 2) + Math.pow(Math.abs(trees.get(a).top1.getX() - trees.get(b).top1.getX()), 2)) - trees.get(a).getCanopyRadius() - trees.get(b).getCanopyRadius() < 2) {
-
-							//Remove b tree
-							trees.remove(b);
-
-							//Decrement b tree index
-							b--;
-
-							//If current a tree has higher index than b tree, decrement a tree index
-							if(a > b)
-								a--;
-
-						}
-					}
-				}
-			}*/
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
 
-    	/*List<Integer> randIndList = new ArrayList<Integer>();
-    	for(int ai = 0; ai < trees.size(); ai++)
-    		randIndList.add(ai);
-    	//Randomize comparison order
-    	Collections.shuffle(randIndList);
-    	//Compare each tree with each other
-    	try {
-    		for(int a = 0; a < trees.size(); a++) {
-        		for(int b = 0; b < trees.size(); b++) {
-        			//Actual index of a and b tree in trees
-        			int ai = randIndList.get(a);
-        			int bi = randIndList.get(b);
-        			
-        			if(ai != bi) {
-        				//If tree a and b canopy circle intersect, remove b tree
-            			if(Math.sqrt(Math.pow(Math.abs(trees.get(bi).top1.getZ() - trees.get(ai).top1.getZ()), 2) + Math.pow(Math.abs(trees.get(ai).top1.getX() - trees.get(bi).top1.getX()), 2)) - trees.get(ai).getCanopyRadius() - trees.get(bi).getCanopyRadius() < 2) {
-            				
-            				randIndList.remove(b);
-            				//Update comparison order index, to reflect removal of b tree
-            				for(int rand = 0; rand < randIndList.size(); rand++) {
-            					//If tree has higher index than b index, decrement index
-            					if(randIndList.get(rand) > bi)
-            						randIndList.set(rand, randIndList.get(rand) - 1);
-            				}
-            				
-            				//Remove b tree
-            				trees.remove(bi);
-            				
-            				//If current a tree has higher index than b tree, decrement a tree index
-            				if(a > b)
-            					--a;
-            				//Decrement b tree index
-            				--b;
-            				
-            			}
-        			}
-        		}
-        	}
-    	}catch(Exception ex) {
-    		ex.printStackTrace();
-    	}*/
-    	
     	return trees;
     }
 
+	/**
+	 * Check's if a log exists around the canopy area of the tree with a negative offset
+	 * @param gen The tree gen
+	 * @param world The Minecraft world
+	 * @param negativeOffset The negative offset to decrease the scan are around the tree
+	 * @return The result of the trees
+	 */
     protected boolean checkVicinity(CustomTreeGen gen, World world, int negativeOffset){
 
     	int offset = gen.getCanopyRadius();
@@ -346,18 +323,25 @@ public class CustomTreePopulator implements IEarthPopulator {
 		int rl = gen.top1.getX() + offset;
 		int tl = gen.top1.getZ() + offset;
 
+		int[] T = {gen.top1.getX(), gen.top1.getZ()};
+
 		for(int x = gen.top1.getX() - offset; x <= rl; x++) {
 			for(int z = gen.top1.getZ() - offset; z <= tl; z++) {
 				int y_limit = gen.top1.getY() + 5;
 				for(int y = gen.top1.getY(); y < y_limit; y++){
 
-					BlockPos g = new BlockPos(x, y, z);
+					double r = Math.sqrt(Math.pow(T[0] - x, 2) + Math.pow(T[1] - z , 2));
 
-					IBlockState state = world.getBlockState(g);
+					//Point lies within canopy radius
+					if(r <= offset){
+						BlockPos g = new BlockPos(x, y, z);
 
-					//Check if block is log
-					if(WOOD_BLOCKS.contains(state.getBlock())) {
-						return true;
+						IBlockState state = world.getBlockState(g);
+
+						//Check if block is log
+						if(WOOD_BLOCKS.contains(state.getBlock())) {
+							return true;
+						}
 					}
 				}
 			}
@@ -376,7 +360,7 @@ public class CustomTreePopulator implements IEarthPopulator {
      * @param pos The CubePos
      * @return List of trees
      */
-    protected List<CustomTreeGen> offsetTrees(List<CustomTreeGen> trees, Set<SegmentLinearFunc> segments, Block segBlock, int offset, int positiveOffset, World world, CubePos pos) {
+    protected List<CustomTreeGen> offsetTrees(List<CustomTreeGen> trees, Set<SegmentLinearFunc> segments, Block segBlock, int offset, int positiveOffset, int negativeOffset , World world, CubePos pos) {
     	for(Iterator<CustomTreeGen> it = trees.iterator(); it.hasNext();) {
 			CustomTreeGen gen = it.next();
 
@@ -443,8 +427,13 @@ public class CustomTreePopulator implements IEarthPopulator {
     						int actualX = (int)Math.round(T2x);
     						int actualZ = (int)Math.round(T2y);
     						
-    						gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
-    						gen.movedBack = true;
+    						//gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+							gen.top1 = surfaceBlock(actualX, actualZ, world, pos);
+							gen.movedBack = true;
+
+							if(checkVicinity(gen, world, negativeOffset))
+								removeTree = true;
+
     						continue;
     					}
 					}else if(seg.isConstantY()) {
@@ -454,9 +443,13 @@ public class CustomTreePopulator implements IEarthPopulator {
 							
 							int actualX = T[0];
 							int actualZ = (int)Math.round(T2y);
-							
-							gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
-    						gen.movedBack = true;
+
+							gen.top1 = surfaceBlock(actualX, actualZ, world, pos);
+							gen.movedBack = true;
+
+							if(checkVicinity(gen, world, negativeOffset))
+								removeTree = true;
+
     						continue;
 						}
 						
@@ -467,9 +460,13 @@ public class CustomTreePopulator implements IEarthPopulator {
 							
 							int actualX = (int)Math.round(T2x);
 							int actualZ = T[1];
-							
-							gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
-    						gen.movedBack = true;
+
+							gen.top1 = surfaceBlock(actualX, actualZ, world, pos);
+							gen.movedBack = true;
+
+							if(checkVicinity(gen, world, negativeOffset))
+								removeTree = true;
+
     						continue;
 						}
 					}
@@ -479,119 +476,131 @@ public class CustomTreePopulator implements IEarthPopulator {
 			if(removeTree) {
 				it.remove();
 				continue;
-			}	
-			else {
-				//Secondary check around tree canopy if tree lies less then the offset from the edge
-				//This is for cases, where s tree lies on the corner and we check for neighboring roads
-				int[] T = {gen.top1.getX(), gen.top1.getZ()};
-				
-				int rl = gen.top1.getX() + gen.getCanopyRadius() + offset;
-				int tl = gen.top1.getZ() + gen.getCanopyRadius() + offset;
-				
-				double[] P = {0,0};
-				double r1 = 0; //min radius
-				
-				for(int x = gen.top1.getX() - gen.getCanopyRadius() - offset; x <= rl; x++) {
-					for(int z = gen.top1.getZ() - gen.getCanopyRadius() - offset; z <= tl; z++) {
-						double r = Math.sqrt(Math.pow(T[0] - x, 2) + Math.pow(T[1] - z , 2));
-						
-						//Point lies within canopy radius
-						if(r <= gen.getCanopyRadius()) {
-							BlockPos g = new BlockPos(x, this.quickElev(world, x, z, pos.getMinBlockY() - 1, pos.getMaxBlockY()), z);
-							
-							IBlockState state = world.getBlockState(g);
-							
-							//Check if block is concrete
-							if(state.getBlock() == segBlock) {
-								
-								//Min radius
-								if(r < r1 || r1 == 0) {
-									r1 = r;
-									P = new double[] {x,z};
-								}else if(r == r1) { //If the radius is the same, set x1 and y1 to the midpoint between the two points
-									P = new double[] {(P[0] + x) / 2,(P[1] + z) / 2};
-								}
+			}
+
+			//Secondary check around tree canopy if tree lies less then the offset from the edge
+			//This is for cases, where s tree lies on the corner and we check for neighboring roads
+			int[] T = {gen.top1.getX(), gen.top1.getZ()};
+
+			int rl = gen.top1.getX() + gen.getCanopyRadius() + offset;
+			int tl = gen.top1.getZ() + gen.getCanopyRadius() + offset;
+
+			double[] P = {0,0};
+			double r1 = 0; //min radius
+
+			for(int x = gen.top1.getX() - gen.getCanopyRadius() - offset; x <= rl; x++) {
+				for(int z = gen.top1.getZ() - gen.getCanopyRadius() - offset; z <= tl; z++) {
+					double r = Math.sqrt(Math.pow(T[0] - x, 2) + Math.pow(T[1] - z , 2));
+
+					//Point lies within canopy radius
+					if(r <= gen.getCanopyRadius()) {
+						BlockPos g = new BlockPos(x, this.quickElev(world, x, z, pos.getMinBlockY() - 10, pos.getMaxBlockY() + 10), z);
+
+						IBlockState state = world.getBlockState(g);
+
+						//Check if block is segBlock
+						if(state.getBlock() == segBlock) {
+
+							//Min radius
+							if(r < r1 || r1 == 0) {
+								r1 = r;
+								P = new double[] {x,z};
+							}else if(r == r1) { //If the radius is the same, set x1 and y1 to the midpoint between the two points
+								P = new double[] {(P[0] + x) / 2,(P[1] + z) / 2};
 							}
-							
 						}
+
 					}
-				}
-				
-				
-				if(P[0] != 0 && P[1] != 0 && (T[0] != P[0] || T[1] != P[1])) {
-					//Line between road edge and tree
-					
-					if(T[0] != P[0] && T[1] != P[1]) {
-						double k = (T[1] - P[1]) / (T[0] - P[0]);
-						
-    		    		double n = P[1] - k * P[0];
-    		    		
-    		    		double a = Math.sqrt(Math.pow(T[0] - P[0], 2) + Math.pow(T[1] - P[1] , 2));
-    		    		
-    		    		//Check if distance between tree and road edge is less than 2m
-    		    		if(a - gen.getCanopyRadius() <= offset) {
-    		    			it.remove();
-    		    			continue;
-
-    		    			/*
-    		    			double a3 = Math.abs(T[1] - P[1]);
-    		    			double alpha = Math.toDegrees(Math.acos(a3 / a));
-    		    			
-    		    			double a2 = positiveOffset + gen.getCanopyRadius();
-    		    			double c1 = a2 / Math.cos(Math.toRadians(alpha));
-    		    			
-    		    			double T2y = (P[1] < T[1]) ? P[1] + c1 : P[1] - c1;
-    		    			double T2x = (T2y - n) / k;
-    		    			
-		    				int actualX = (int)Math.round(T2x);
-    						
-    						int actualZ = (int)Math.round(T2y);
-    						
-            				gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
-    						gen.movedBack = true;
-    						continue;*/
-    		    		}
-					} else if(T[1] == P[1]) { //Constant y
-						
-						if(Math.abs(T[0] - P[0]) - gen.getCanopyRadius() <= offset) {
-							it.remove();
-							continue;
-
-							/*
-							double T2x = (P[0] < T[0]) ? P[0] + positiveOffset + gen.getCanopyRadius() : P[0] - positiveOffset - gen.getCanopyRadius();
-    						
-    						int actualX = (int)Math.round(T2x);
-    						int actualZ = T[1];
-
-    						gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
-    						gen.movedBack = true;
-    						continue;*/
-						}
-						
-					} else if(T[0] == P[0]) { //Constant x
-						
-						if(Math.abs(T[1] - P[1]) - gen.getCanopyRadius() <= offset) {
-							it.remove();
-							continue;
-							/*
-							double T2y = (P[1] < T[1]) ? P[1] + positiveOffset + gen.getCanopyRadius() : P[1] - positiveOffset + gen.getCanopyRadius();
-    						
-    						int actualX = T[0];
-    						int actualZ = (int)Math.round(T2y);
-    						
-    						gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
-    						gen.movedBack = true;
-    						continue;*/
-						}
-						
-					}
-					
-				}else if(T[0] == P[0] && T[1] == P[1]) {
-					//Remove tree if lies on road
-					it.remove();
-					continue;
 				}
 			}
+
+
+			if(P[0] != 0 && P[1] != 0 && (T[0] != P[0] || T[1] != P[1])) {
+				//Line between road edge and tree
+
+				if(T[0] != P[0] && T[1] != P[1]) {
+					double k = (T[1] - P[1]) / (T[0] - P[0]);
+
+					double n = P[1] - k * P[0];
+
+					double a = Math.sqrt(Math.pow(T[0] - P[0], 2) + Math.pow(T[1] - P[1] , 2));
+
+					//Check if distance between tree and road edge is less than 2m
+					if(a - gen.getCanopyRadius() <= offset) {
+						/*
+						double a3 = Math.abs(T[1] - P[1]);
+						double alpha = Math.toDegrees(Math.acos(a3 / a));
+
+						double a2 = positiveOffset + gen.getCanopyRadius();
+						double c1 = a2 / Math.cos(Math.toRadians(alpha));
+
+						double T2y = (P[1] < T[1]) ? P[1] + c1 : P[1] - c1;
+						double T2x = (T2y - n) / k;
+
+						int actualX = (int)Math.round(T2x);
+
+						int actualZ = (int)Math.round(T2y);
+
+						gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+						gen.movedBack = true;
+
+						if(checkVicinity(gen, world, negativeOffset))
+							it.remove();
+						 */
+
+						it.remove();
+						continue;
+					}
+				} else if(T[1] == P[1]) { //Constant y
+
+					if(Math.abs(T[0] - P[0]) - gen.getCanopyRadius() <= offset) {
+						/*
+						double T2x = (P[0] < T[0]) ? P[0] + positiveOffset + gen.getCanopyRadius() : P[0] - positiveOffset - gen.getCanopyRadius();
+
+						int actualX = (int)Math.round(T2x);
+						int actualZ = T[1];
+
+						gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+						gen.movedBack = true;
+
+						if(checkVicinity(gen, world, negativeOffset))
+							it.remove();
+						 */
+
+						it.remove();
+						continue;
+					}
+
+				} else if(T[0] == P[0]) { //Constant x
+
+					if(Math.abs(T[1] - P[1]) - gen.getCanopyRadius() <= offset) {
+						/*
+						double T2y = (P[1] < T[1]) ? P[1] + positiveOffset + gen.getCanopyRadius() : P[1] - positiveOffset + gen.getCanopyRadius();
+
+						int actualX = T[0];
+						int actualZ = (int)Math.round(T2y);
+
+						gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+						gen.movedBack = true;
+
+
+						if(checkVicinity(gen, world, negativeOffset))
+							it.remove();
+
+						 */
+
+						it.remove();
+						continue;
+					}
+
+				}
+
+			}else if(T[0] == P[0] && T[1] == P[1]) {
+				//Remove tree if lies on segment
+				it.remove();
+				continue;
+			}
+
 		}
     	return trees;
     }
@@ -607,7 +616,7 @@ public class CustomTreePopulator implements IEarthPopulator {
     	
     	for(Iterator<CustomTreeGen> it = trees.iterator(); it.hasNext();) {
 			CustomTreeGen gen = it.next();
-			
+
 			for(Set<SegmentLinearFunc> building : buildings) {
 				int count = 0;
 				for(SegmentLinearFunc seg : building) {

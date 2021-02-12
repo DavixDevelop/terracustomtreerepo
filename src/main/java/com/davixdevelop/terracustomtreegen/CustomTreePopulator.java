@@ -23,6 +23,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.WorldGenAbstractTree;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CustomTreePopulator implements IEarthPopulator {
 	
@@ -73,11 +74,6 @@ public class CustomTreePopulator implements IEarthPopulator {
 		for (int i = 0, x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++, i++) {
                 if ((rng[i] & 0xFF) < (treeCover[i] & 0xFF)) {
-
-                	/*BlockPos blockPos = ((ICubicWorld) world).getSurfaceForCube(pos, x, z, 0, ICubicWorld.SurfaceType.OPAQUE);
-                	if(blockPos != null)
-                		trees.add(new CustomTreeGen((treeCover[i] / 1.50d) / 255.0d, blockPos));*/
-
                 	BlockPos blockPos = new BlockPos(pos.getMinBlockX() + x, quickElev(world, pos.getMinBlockX() + x, pos.getMinBlockZ() + z, pos.getMinBlockY() - 1, pos.getMaxBlockY() + 1) + 1, pos.getMinBlockZ() + z);
                 	trees.add(new CustomTreeGen((treeCover[i] / 1.50d) / 255.0d, blockPos));
                 }
@@ -90,7 +86,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 
 		if(trees.size() > 8)
-			trees = this.treeBounds(trees, random, world, pos, 1, -1);
+			trees = this.treeBounds(trees, random, world, pos, -3, -1, -2);
 
 
 		if(trees.size() > 0) {
@@ -171,21 +167,6 @@ public class CustomTreePopulator implements IEarthPopulator {
 
     protected  BlockPos surfaceBlock(int x, int z, World world, CubePos pos){
 		return new BlockPos(x, this.quickElev(world, x, z, pos.getMinBlockY() - 10, pos.getMaxBlockY() + 10) + 1, z);
-		/*
-		if(x < pos.getMinBlockX() || x > pos.getMaxBlockX() || z < pos.getMinBlockZ() || z > pos.getMaxBlockZ()) {
-			return new BlockPos(x, this.quickElev(world, x, z, pos.getMinBlockY() - 10, pos.getMaxBlockY() +10) + 1, z);
-		}
-
-		int offsetX = Math.abs(x - pos.getMinBlockX());
-		int offsetZ = Math.abs(z - pos.getMinBlockZ());
-
-		BlockPos blockPos =  ((ICubicWorld) world).getSurfaceForCube(pos, offsetX, offsetZ, 0, ICubicWorld.SurfaceType.OPAQUE);
-		if(blockPos == null)
-			return new BlockPos(x, this.quickElev(world, x, z, pos.getMinBlockY() - 10, pos.getMaxBlockY()+ 10) + 1, z);
-		else
-			return blockPos;
-
-		 */
 	}
     
     protected int quickElev(World world, int x, int z, int low, int high) {
@@ -206,7 +187,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 
     /**
      * Checks if trees canopy spread interact, and if they do, remove them
-     * @param  trees List of trees
+     * @param  org_trees List of trees
      * @param  random Java random
 	 * @param  world The Minecraft world
 	 * @param  pos The cube position
@@ -214,8 +195,13 @@ public class CustomTreePopulator implements IEarthPopulator {
 	 * @param negativeOffset The negative offset to decrease the scan are around the tree
 	 * @return Modified list of trees
      */
-    protected List<CustomTreeGen> treeBounds(List<CustomTreeGen> trees, Random random, World world, CubePos pos, int positiveOffset, int negativeOffset) {
-		Collections.shuffle(trees);
+    protected List<CustomTreeGen> treeBounds(List<CustomTreeGen> org_trees, Random random, World world, CubePos pos, int positiveOffset, int negativeOffset, int offset) {
+    	List<CustomTreeGen> trees = new ArrayList<>(org_trees);
+    	if(random.nextBoolean())
+    		Collections.shuffle(trees);
+		else
+	 		trees = org_trees.stream().sorted(Comparator.comparingInt(CustomTreeGen::getCanopyRadius)).collect(Collectors.toList());
+
 		try {
 			List<CustomTreeGen> diff = new ArrayList<>();
 
@@ -230,7 +216,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 						double difference = Math.sqrt(Math.pow(Math.abs(b.top1.getZ() - a.top1.getZ()), 2) + Math.pow(Math.abs(a.top1.getX() - b.top1.getX()), 2)) - a.getCanopyRadius() - b.getCanopyRadius();
 
 						//(random.nextInt(4) * -1)
-						if(difference < 2) {
+						if(difference < offset) {
 							SegmentLinearFunc seg = new SegmentLinearFunc(new double[]{a.top1.getX(), a.top1.getZ()}, new double[]{b.top1.getX(), b.top1.getZ()}, 1);
 							int[] A = {a.top1.getX(), a.top1.getZ()};
 							int[] B = {b.top1.getX(), b.top1.getZ()};
@@ -304,7 +290,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 			ex.printStackTrace();
 		}
 
-    	return trees;
+    	return org_trees;
     }
 
 	/**

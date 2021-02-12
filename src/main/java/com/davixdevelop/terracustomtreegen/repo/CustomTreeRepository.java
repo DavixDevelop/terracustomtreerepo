@@ -49,6 +49,7 @@ import net.minecraft.world.biome.Biome;
 public class CustomTreeRepository {
 	public static final double LOWER_LIMIT = (0.95 / 3);
 	public static final double UPPER_LIMIT = (0.95 / 3) * 2;
+	public static final double MIDDLE_LIMIT = 0.95 / 2;
 	public static final int MAX_TREE_HEIGHT = 27;
 	public static final int MAP_COLS = 720;
 	public static final int MAP_ROWS = 360;
@@ -83,7 +84,7 @@ public class CustomTreeRepository {
 	 * This method returns and array of WordGenAbstractTree's and Schematics
 	 * depending on the location, and biome
 	 * 
-	 * @param tree		 List of trees	
+	 * @param trees		 List of trees
 	 * @param world      The Minecraft world, to get generators for
 	 * @param biome      The biome of the location
 	 * @param projection The projection of the world
@@ -137,8 +138,30 @@ public class CustomTreeRepository {
 				int l = random.nextInt(3) + minTreeHeight;
 				List<Integer> indexes = new ArrayList<Integer>();
 				boolean vines = false;
-				
-				if(random.nextBoolean()) {
+
+				//random.nextBoolean()
+				if(schematicIndex.size() > 0) {
+					// Add schematic indexes to selection
+					if(schematicIndex.size() > 0) {
+						//If ran out of trees, re-populate list
+						/*if(schematicIndex.size() == 0)
+							schematicIndex = new ArrayList<Integer>(schematicOrg);*/
+						int ran = random.nextInt(schematicIndex.size());
+						indexes.add(schematicIndex.get(ran));
+						schematicIndex.remove(ran);
+					}
+					else {
+						if (gen.getCanopy() <= LOWER_LIMIT) {
+							if (biomeId != 6) {
+								indexes.add(500);
+							} else {
+								indexes.add(501);
+							}
+						} else {
+							indexes.add(502);
+						}
+					}
+				}else {
 					// Check for vines
 					if (Arrays.asList(6, 21, 22, 134, 149, 151).contains(biomeId)) {
 						vines = true;
@@ -214,27 +237,6 @@ public class CustomTreeRepository {
 
 					// Default to oak
 					if (indexes.isEmpty()) {
-						if (gen.getCanopy() <= LOWER_LIMIT) {
-							if (biomeId != 6) {
-								indexes.add(500);
-							} else {
-								indexes.add(501);
-							}
-						} else {
-							indexes.add(502);
-						}
-					}
-				}else {
-					// Add schematic indexes to selection
-					if(schematicIndex.size() > 0) {
-						//If ran out of trees, re-populate list
-						if(schematicIndex.size() == 0)
-							schematicIndex = new ArrayList<Integer>(schematicOrg);
-						int ran = random.nextInt(schematicIndex.size());
-						indexes.add(schematicIndex.get(ran));
-						schematicIndex.remove(ran);
-					}
-					else {
 						if (gen.getCanopy() <= LOWER_LIMIT) {
 							if (biomeId != 6) {
 								indexes.add(500);
@@ -361,7 +363,7 @@ public class CustomTreeRepository {
 			if(tile.treeIndexes != null) {
 				for (int c = 0; c < tile.treeIndexes.size(); c++) {
 					if (data.treeIndex.get(tile.treeIndexes.get(c)).biomes.contains(biomeId)) {
-						if (canopy <= LOWER_LIMIT) {
+						if (canopy <= MIDDLE_LIMIT) {
 							ind.addAll(data.treeIndex.get(tile.treeIndexes.get(c)).treeS);
 						} else {
 							ind.addAll(data.treeIndex.get(tile.treeIndexes.get(c)).treeL);

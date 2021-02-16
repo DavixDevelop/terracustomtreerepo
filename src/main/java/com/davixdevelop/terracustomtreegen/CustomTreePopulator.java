@@ -5,6 +5,7 @@ import com.davixdevelop.terracustomtreegen.repo.CustomTreeRepository;
 import com.davixdevelop.terracustomtreegen.schematic.Schematic;
 import com.google.common.collect.ImmutableSet;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorldServer;
 import net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.common.ref.Ref;
@@ -55,39 +56,57 @@ public class CustomTreePopulator implements IEarthPopulator {
 	protected EarthGenerator generator;
 	
 	@Override
-	public void populate(World world, Random random, CubePos pos, Biome biome, CachedChunkData data) {
-		if(!data.intersectsSurface(pos.getY())) {
-			return;
-		}
-		
+	public void populate(World world, Random random, CubePos pos, Biome biome, CachedChunkData datas[]) {
 		if(generator == null) {
     		generator = (EarthGenerator) ((ICubicWorldServer) world).getCubeGenerator();
     	}
-		
-		byte[] treeCover = data.getCustom(EarthGeneratorPipelines.KEY_DATA_TREE_COVER, TreeCoverBaker.FALLBACK_TREE_DENSITY);
-		
+
 		byte[] rng = RNG_CACHE.get();
+
+		for (int i = 0, cx = 0; cx < 2; cx++) {
+			for (int cz = 0; cz < 2; cz++) {
+				this.populateColumn(world, random, pos, biome, datas[i++], (ICube.SIZE >> 1) * (cx + 1), (ICube.SIZE >> 1) * (cz + 1), rng);
+			}
+		}
+	}
+
+	protected void populateColumn(World world, Random random, CubePos pos, Biome biome, CachedChunkData data, int x, int z, byte[] rng){
+		if (!data.intersectsSurface(pos.getY())) { //optimization: don't try to generate snow below the surface
+			return;
+		}
+
+		byte[] treeCover = data.getCustom(EarthGeneratorPipelines.KEY_DATA_TREE_COVER, TreeCoverBaker.FALLBACK_TREE_DENSITY);
 		random.nextBytes(rng);
-		
+
 		List<CustomTreeGen> trees  = new ArrayList<>();
 
-		for (int i = 0, x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++, i++) {
-                if ((rng[i] & 0xFF) < (treeCover[i] & 0xFF)) {
-                	BlockPos blockPos = new BlockPos(pos.getMinBlockX() + x, quickElev(world, pos.getMinBlockX() + x, pos.getMinBlockZ() + z, pos.getMinBlockY() - 1, pos.getMaxBlockY() + 1) + 1, pos.getMinBlockZ() + z);
-                	trees.add(new CustomTreeGen((treeCover[i] / 1.50d) / 255.0d, blockPos));
-                }
-            }
-        }
+		/*
+		int minBlockX = pos.getMinBlockX();
+		int minBlockZ = pos.getMinBlockZ();
+		int minBlockY = pos.getMinBlockY();
+		int maxBlockY = pos.getMaxBlockY();
+		*/
+
+		for (int i = 0, dx = 0; dx < ICube.SIZE >> 1; dx++) {
+			for (int dz = 0; dz < ICube.SIZE >> 1; dz++, i++) {
+				if ((rng[i] & 0xFF) < (treeCover[(((x + dx) & 0xF) << 4) | ((z + dz) & 0xF)] & 0xFF)) {
+					//BlockPos blockPos = new BlockPos(minBlockX + x + dx, quickElev(world, minBlockX + x + dx, minBlockZ + z + dz, minBlockY - 1, maxBlockY + 1) + 1, minBlockZ + z + dz);
+					BlockPos blockPos = ((ICubicWorld) world).getSurfaceForCube(pos, x + dx, z + dx, 0, ICubicWorld.SurfaceType.OPAQUE);
+					if(blockPos != null)
+						trees.add(new CustomTreeGen((treeCover[(((x + dx) & 0xF) << 4) | ((z + dz) & 0xF)] / 1.50d) / 255.0d, blockPos));
+				}
+			}
+		}
 
 
-		if(trees.size() > 0) 
+		if(trees.size() > 0)
 			trees = TREE_REPO.getTreeGenerators(trees, world, biome, generator.projection, pos, random);
 
 
 		if(trees.size() > 8)
-			trees = this.treeBounds(trees, random, world, pos, -3, -1, -2);
+			trees = this.treeBounds(trees, random, world, pos, 1, -3, 0);
 
+		//-3,-1,-2
 
 		if(trees.size() > 0) {
 
@@ -99,27 +118,26 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 			if(roads.size() > 0) {
 				trees = offsetTrees(trees, roads, Blocks.CONCRETE, 2, 5,1, world, pos);
-        	}
+			}
 
 
-        	if(paths.size() > 0) {
-        		trees = offsetTrees(trees, paths, Blocks.GRASS_PATH, 1, 2,1, world, pos);
-        	}
-        	
-        	if(freeways.size() > 0) {
-        		trees = offsetTrees(trees, freeways, Blocks.CONCRETE, 8, 9,1, world, pos);
-        	}
-        	
-        	if(buildings.size() > 0) {
-        		trees = checkForBuildings(trees, buildings, pos);
-        	}
+			if(paths.size() > 0) {
+				trees = offsetTrees(trees, paths, Blocks.GRASS_PATH, 1, 2,1, world, pos);
+			}
+
+			if(freeways.size() > 0) {
+				trees = offsetTrees(trees, freeways, Blocks.CONCRETE, 8, 9,1, world, pos);
+			}
+
+			if(buildings.size() > 0) {
+				trees = checkForBuildings(trees, buildings, pos);
+			}
 		}
-		
+
 		if(trees.size() > 0) {
 			for(int i = 0; i < trees.size(); ++i)
 				this.tryPlace(world, random, pos, trees.get(i));
 		}
-
 	}
 	
 	protected void tryPlace(World world, Random random, CubePos pos, CustomTreeGen gen) {
@@ -191,8 +209,9 @@ public class CustomTreePopulator implements IEarthPopulator {
      * @param  random Java random
 	 * @param  world The Minecraft world
 	 * @param  pos The cube position
-	 * @param positiveOffset The offset between trees
-	 * @param negativeOffset The negative offset to decrease the scan are around the tree
+	 * @param positiveOffset The offset to push tree, if it's difference from tree b is less than offset
+	 * @param negativeOffset The negative offset to decrease or increase the scan are around the tree
+	 * @param offset The offset between trees
 	 * @return Modified list of trees
      */
     protected List<CustomTreeGen> treeBounds(List<CustomTreeGen> org_trees, Random random, World world, CubePos pos, int positiveOffset, int negativeOffset, int offset) {
@@ -216,7 +235,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 						double difference = Math.sqrt(Math.pow(Math.abs(b.top1.getZ() - a.top1.getZ()), 2) + Math.pow(Math.abs(a.top1.getX() - b.top1.getX()), 2)) - a.getCanopyRadius() - b.getCanopyRadius();
 
 						//(random.nextInt(4) * -1)
-						if(difference < offset) {
+						if(difference < offset && !a.repositioned) {
 							SegmentLinearFunc seg = new SegmentLinearFunc(new double[]{a.top1.getX(), a.top1.getZ()}, new double[]{b.top1.getX(), b.top1.getZ()}, 1);
 							int[] A = {a.top1.getX(), a.top1.getZ()};
 							int[] B = {b.top1.getX(), b.top1.getZ()};

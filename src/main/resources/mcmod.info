@@ -8,9 +8,9 @@
   "url": "https://buildtheearth.net",
   "updateUrl": "",
   "authorList": ["DavixDevelop"],
-  "credits": "lentebriesje for providing the Custom Tree Repository. Tree map made with the Present and future Köppen-Geiger climate classification maps at 1-km resolution: Beck, Hylke E.; E. Zimmermann, Niklaus; McVicar, Tim R.; Vergopolan, Noemi; Berg, Alexis; Wood, Eric F. (2018): Present and future Köppen-Geiger climate classification maps at 1-km resolution. figshare. Dataset. https://doi.org/10.6084/m9.figshare.6396959 ",
+  "credits": "lentebriesje for providing the Custom Tree Repository. Tree map made with the Present and future Kï¿½ppen-Geiger climate classification maps at 1-km resolution: Beck, Hylke E.; E. Zimmermann, Niklaus; McVicar, Tim R.; Vergopolan, Noemi; Berg, Alexis; Wood, Eric F. (2018): Present and future Kï¿½ppen-Geiger climate classification maps at 1-km resolution. figshare. Dataset. https://doi.org/10.6084/m9.figshare.6396959 ",
   "logoFile": "",
   "screenshots": [],
-  "dependencies": []
+  "dependencies": ["terraplusplus"]
 }
 ]

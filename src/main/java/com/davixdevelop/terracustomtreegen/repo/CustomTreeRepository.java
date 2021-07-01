@@ -1,48 +1,24 @@
 package com.davixdevelop.terracustomtreegen.repo;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
 import com.davixdevelop.terracustomtreegen.CustomTreeGen;
 import com.davixdevelop.terracustomtreegen.TerraTreeRepoMod;
 import com.davixdevelop.terracustomtreegen.schematic.Schematic;
 import com.davixdevelop.terracustomtreegen.schematic.SchematicOffset;
-
-import io.github.opencubicchunks.cubicchunks.api.util.Coords;
-import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import net.buildtheearth.terraplusplus.TerraMod;
-import net.buildtheearth.terraplusplus.projection.GeographicProjection;
-import net.buildtheearth.terraplusplus.projection.OutOfProjectionBoundsException;
+import net.minecraft.block.*;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.block.BlockPlanks;
-import net.minecraft.block.BlockLeaves;
-import net.minecraft.block.BlockOldLeaf;
-import net.minecraft.block.BlockOldLog;
-import net.minecraft.world.gen.feature.WorldGenTrees;
-import net.minecraft.world.gen.feature.WorldGenMegaPineTree;
-import net.minecraft.world.gen.feature.WorldGenMegaJungle;
-import net.minecraft.world.gen.feature.WorldGenBigTree;
-import net.minecraft.world.gen.feature.WorldGenSwamp;
-import net.minecraft.world.gen.feature.WorldGenTaiga2;
-import net.minecraft.world.gen.feature.WorldGenTaiga1;
-import net.minecraft.world.gen.feature.WorldGenBirchTree;
-import net.minecraft.world.gen.feature.WorldGenSavannaTree;
-import net.minecraft.world.gen.feature.WorldGenCanopyTree;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.feature.*;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Represents a repository of schematics of custom trees in the assets
- * 
+ *
  * @author DavixDevelop
  *
  */
@@ -51,28 +27,35 @@ public class CustomTreeRepository {
 	public static final double UPPER_LIMIT = (0.95 / 3) * 2;
 	public static final double MIDDLE_LIMIT = 0.95 / 2;
 	public static final int MAX_TREE_HEIGHT = 27;
-	public static final int MAP_COLS = 720;
-	public static final int MAP_ROWS = 360;
-	
+
 	private TreeRepoData data;
 
 	public CustomTreeRepository() {
 		this.data = new TreeRepoData();
 		//readFromAssets();
 
+
 		try {
 			this.data = readFromDat();
 		}catch(IOException | ClassNotFoundException ex) {
-			this.data.treeMap = null;
+			this.data.treeMeta = null;
 			TerraTreeRepoMod.LOGGER.error("Error while reading custotreerepo.dat. Custom Trees disabled and falling back to only vanilla trees.");
 			ex.printStackTrace();
 		}
-		
+
+	}
+
+	/**
+	 * Get list of tree metadata
+	 * @return The trees metadata list
+	 */
+	public List<TreeBiome> getTreeMeta(){
+		return data.treeMeta;
 	}
 
 	/**
 	 * Returns a schematic of a tree at the specidifed index
-	 * 
+	 *
 	 * @param index The index of the tree)
 	 * @return The schematic of the tree
 	 */
@@ -83,56 +66,35 @@ public class CustomTreeRepository {
 	/**
 	 * This method returns and array of WordGenAbstractTree's and Schematics
 	 * depending on the location, and biome
-	 * 
+	 *
 	 * @param trees		 List of trees
-	 * @param world      The Minecraft world, to get generators for
 	 * @param biome      The biome of the location
-	 * @param projection The projection of the world
-	 * @param pos        The location
+	 * @param tile 		 The tree data tile from the tree map
 	 * @param random     The Java random
 	 * @return A array of objects, containing WordGenAbstractTree's and Schematics
 	 */
-	public List<CustomTreeGen> getTreeGenerators(List<CustomTreeGen> trees, World world, Biome biome, GeographicProjection projection, CubePos pos, Random random) {
-		
+	public List<CustomTreeGen> getTreeGenerators(List<CustomTreeGen> trees, Biome biome, TreeData tile, Random random) {
+
 		if (trees.size() != 0) {
 			int biomeId = Biome.getIdForBiome(biome);
-			
+
 
 			// Find schematic indexes for location
 			List<Integer> schematicIndex = new ArrayList<Integer>();
 			List<Integer> schematicOrg = new ArrayList<Integer>();
-			int X = 0;
-			int Y = 0;
-			try {
-				// Find minimum block position
-				int baseX = Coords.cubeToMinBlock(pos.getX());
-				int baseY = Coords.cubeToMinBlock(pos.getY());
-				int baseZ = Coords.cubeToMinBlock(pos.getZ());
-				BlockPos posB = new BlockPos(baseX + 8, baseY + 8, baseZ + 8);
 
-				// Get longitude and latitude for block
-				double[] projected = projection.toGeo(posB.getX(), posB.getZ());
-
-				// Get X and Y coordinate of tile on tree map
-				X = (int) Math.floor(MAP_COLS * (projected[0] + 180) / 360);
-				Y = (int) Math.floor(MAP_ROWS * (90 - projected[1]) / 180);
-				
-			} catch (OutOfProjectionBoundsException e) {
-
-			}
-			
 			double canopyCategory = -1;
 			for (int t = 0; t < trees.size(); t++) {
 				CustomTreeGen gen = trees.get(t);
-				
+
 				//Only get new schematics indexes if the canopy category changes
 				if(canopyCategory != ((gen.getCanopy() <= LOWER_LIMIT) ? 0 : 1)) {
 					// Get applicable schematics indexes for tile
 					canopyCategory = (gen.getCanopy() <= LOWER_LIMIT) ? 0 : 1;
-					schematicIndex = getTreeIndexes(biomeId, gen.getCanopy(), X, Y);
+					schematicIndex = getTreeIndexes(biomeId, gen.getCanopy(), tile);
 					schematicOrg = new ArrayList<Integer>(schematicIndex);
 				}
-				
+
 				int minTreeHeight = (int) (gen.getCanopy() * MAX_TREE_HEIGHT);
 				// Tree size from canopy
 				int l = random.nextInt(3) + minTreeHeight;
@@ -249,9 +211,9 @@ public class CustomTreeRepository {
 					}
 				}
 
-				
 
-				
+
+
 
 				// Select random tree type if biome has multiple tree types, otherwise select
 				// first tree
@@ -320,18 +282,18 @@ public class CustomTreeRepository {
 					}
 						break;
 					case 512: {
-						gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG2.getDefaultState().withProperty(BlockOldLog.VARIANT,BlockPlanks.EnumType.ACACIA), Blocks.LEAVES2.getDefaultState().withProperty(BlockOldLeaf.VARIANT,BlockPlanks.EnumType.ACACIA).withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
+						gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT,BlockPlanks.EnumType.ACACIA), Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT,BlockPlanks.EnumType.ACACIA).withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
 					}
 						break;
 					case 513: {
-						gen.loadTree(new WorldGenMegaJungle(false, minTreeHeight, random.nextInt(7), Blocks.LOG2.getDefaultState().withProperty(BlockOldLog.VARIANT,BlockPlanks.EnumType.ACACIA), Blocks.LEAVES2.getDefaultState().withProperty(BlockOldLeaf.VARIANT,BlockPlanks.EnumType.ACACIA).withProperty(BlockLeaves.CHECK_DECAY, false)), 3);
+						gen.loadTree(new WorldGenMegaJungle(false, minTreeHeight, random.nextInt(7), Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT,BlockPlanks.EnumType.ACACIA), Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT,BlockPlanks.EnumType.ACACIA).withProperty(BlockLeaves.CHECK_DECAY, false)), 3);
 					}
 						break;
 					case 514:
 						gen.loadTree(new WorldGenSavannaTree(false), 4);
 						break;
 					case 515: {
-						gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG2.getDefaultState().withProperty(BlockOldLog.VARIANT,BlockPlanks.EnumType.DARK_OAK), Blocks.LEAVES2.getDefaultState().withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.DARK_OAK).withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
+						gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT,BlockPlanks.EnumType.DARK_OAK), Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT, BlockPlanks.EnumType.DARK_OAK).withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
 					}
 						break;
 					case 516:
@@ -339,44 +301,40 @@ public class CustomTreeRepository {
 						break;
 					}
 				}
-				
+
 				trees.set(t, gen);
 			}
 		}
-		
+
 		return trees;
 	}
 
 	/**
 	 * This method returns the schematic indexes for the location
-	 * 
+	 *
 	 * @param biomeId The biome id of the location
 	 * @param canopy  The canopy value on the location
-	 * @param x       The x coordinate on the tree map
-	 * @param y       They y coordinate on the tree map
+	 * @param tile    The tree data tile from the tree map
 	 * @return A list of schematics indexes
 	 */
-	private List<Integer> getTreeIndexes(int biomeId, double canopy, int x, int y) {
+	private List<Integer> getTreeIndexes(int biomeId, double canopy, TreeData tile) {
 		List<Integer> ind = new ArrayList<>();
-		if(data.treeMap != null) {
-			TreeData tile = data.treeMap.get(x * MAP_ROWS + y);
-			if(tile.treeIndexes != null) {
-				for (int c = 0; c < tile.treeIndexes.size(); c++) {
-					if (data.treeIndex.get(tile.treeIndexes.get(c)).biomes.contains(biomeId)) {
-						if (canopy <= MIDDLE_LIMIT) {
-							ind.addAll(data.treeIndex.get(tile.treeIndexes.get(c)).treeS);
-						} else {
-							ind.addAll(data.treeIndex.get(tile.treeIndexes.get(c)).treeL);
-						}
+		if(tile.treeIndexes != null) {
+			for (int c = 0; c < tile.treeIndexes.size(); c++) {
+				if (data.treeMeta.get(tile.treeIndexes.get(c)).biomes.contains(biomeId)) {
+					if (canopy <= MIDDLE_LIMIT) {
+						ind.addAll(data.treeMeta.get(tile.treeIndexes.get(c)).treeS);
+					} else {
+						ind.addAll(data.treeMeta.get(tile.treeIndexes.get(c)).treeL);
 					}
 				}
 			}
 		}
-		
+
 		return ind;
 	}
 
-	
+
 	private TreeRepoData readFromDat() throws IOException, ClassNotFoundException {
 		InputStream stream = this.getClass().getClassLoader().getResourceAsStream("assets/terracustomtreerepo/customtreerepo.dat");
 		ObjectInputStream inputStream = new ObjectInputStream(stream);
@@ -385,10 +343,10 @@ public class CustomTreeRepository {
 		TerraTreeRepoMod.LOGGER.info("Loaded " + dat.trees.size() + " tree schematics");
 		return dat;
 	}
-	
+
 	/**
 	 * Loads all schematics of trees from assets and tree map. Only to be used for
-	 * development purposes, to import and create the customtreerepo.dat file
+	 * development purposes, to create and import the customtreerepo.dat file
 	 */
 	private void readFromAssets() {
 		// The schematic index
@@ -544,7 +502,7 @@ public class CustomTreeRepository {
 				new SchematicOffset("northamerican/NA1L - Red Maple.schematic", 6, 0, 6, 6),
 				new SchematicOffset("northamerican/NA9S - Lodgepole Pine.schematic", 6, 3, 6, 7),
 				new SchematicOffset("northamerican/NA1S - Red Maple.schematic", 4, 0, 3, 4) };
-		
+
 		for (int l = 0; l < treeList.length; l++) {
 			InputStream stream = this.getClass().getClassLoader()
 					.getResourceAsStream("assets/terracustomtreerepo/" + treeList[l].getSchematicName());
@@ -554,83 +512,57 @@ public class CustomTreeRepository {
 				TerraMod.LOGGER.error(ex.getMessage());
 			}
 		}
-		
+
 		try {
-			this.data.treeMap = readTreeMap();
-			this.data.treeIndex = readTreeIndex();
-			
+			this.data.treeMeta = readTreeMeta();
+
 			//Write customtreerepo.dat to .minecraft folder
 			ObjectOutputStream outStream = new ObjectOutputStream(new FileOutputStream("customtreerepo.dat"));
 			outStream.writeObject(this.data);
 			outStream.close();
-			
+
 		}catch(IOException ex) {
 			TerraMod.LOGGER.error("Error while creating customtreerepo.dat");
 			ex.printStackTrace();
-		}	
-	}
-	
-	/**
-	 * Loads the tree map into a TreeData list from the tree_map.csv file. Only to be used for
-	 * development purposes, to import and create the customtreerepo.dat file
-	 * @return A List of TreeData
-	 * @throws IOException
-	 */
-	public List<TreeData> readTreeMap() throws IOException {
-		List<TreeData> out = new ArrayList<TreeData>();
-		InputStream stream = this.getClass().getClassLoader().getResourceAsStream("assets/terracustomtreerepo/tree_map.csv");
-		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-		
-		while(reader.ready()) {
-			String rawData = reader.readLine();
-			String[] data = rawData.split(";");
-			TreeData tmp = new TreeData();
-			if(data.length > 1)
-				tmp.treeIndexes = parseToIntegerList(data[1]);
-			else
-				tmp.treeIndexes = null;
-			out.add(tmp);
 		}
-		
-		reader.close();
-		
-		return out;
 	}
-	
+
 	/**
-	 * Loads the tree index into a List of TreeBiomes from the trees.csv file. Only to be used for
+	 * Loads the tree metadata into a List of TreeBiomes from the tree_meta.csv file. Only to be used for
 	 * development purposes, to import and create the customtreerepo.dat file
 	 * @return
 	 * @throws IOException
 	 */
-	public List<TreeBiome> readTreeIndex() throws IOException {
+	public List<TreeBiome> readTreeMeta() throws IOException {
 		List<TreeBiome> out = new ArrayList<TreeBiome>();
-		InputStream stream = this.getClass().getClassLoader().getResourceAsStream("assets/terracustomtreerepo/trees.csv");
+		InputStream stream = this.getClass().getClassLoader().getResourceAsStream("assets/terracustomtreerepo/tree_meta.csv");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-		
+
 		boolean skipFirst = true;
 		while(reader.ready()) {
 			if(skipFirst == false) {
 				String rawData = reader.readLine();
 				String[] data = rawData.split(";");
 				TreeBiome tmp = new TreeBiome();
-				tmp.biomes = parseToIntegerList(data[7].trim());
-				tmp.treeL = parseToIntegerList(data[5].trim());
-				tmp.treeS = parseToIntegerList(data[6].trim());
+				tmp.continents = parseToIntegerList(data[0].trim());
+				tmp.treeL = parseToIntegerList(data[1].trim());
+				tmp.treeS = parseToIntegerList(data[2].trim());
+				tmp.biomes = parseToIntegerList(data[3].trim());
+				tmp.climate = parseToIntegerList(data[4].trim());
 				out.add(tmp);
 			}else {
 				reader.readLine();
 				skipFirst = false;
 			}
-				
+
 		}
-		
+
 		reader.close();
-		
+
 		return out;
 	}
 
-	
+
 	/**
 	 * Parses a string containing numbers separated by a comma into a Integer list. Only to be used for
 	 * development purposes, to import and create the customtreerepo.dat file

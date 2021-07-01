@@ -13,12 +13,10 @@ import com.davixdevelop.terracustomtreegen.schematic.Schematic;
  */
 public class TreeRepoData implements java.io.Serializable {
 	public List<Schematic> trees;
-	public List<TreeData> treeMap;
-	public List<TreeBiome> treeIndex;
+	public List<TreeBiome> treeMeta;
 
 	public TreeRepoData() {
 		this.trees = new ArrayList<Schematic>();
-		this.treeMap = new ArrayList<TreeData>();
-		this.treeIndex = new ArrayList<TreeBiome>();
+		this.treeMeta = new ArrayList<TreeBiome>();
 	}
 }

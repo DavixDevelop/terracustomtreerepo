@@ -1,7 +1,9 @@
 package com.davixdevelop.terracustomtreegen;
 
 import com.davixdevelop.terracustomtreegen.baker.SegmentsBaker;
+import com.davixdevelop.terracustomtreegen.baker.TreeMapBaker;
 import com.davixdevelop.terracustomtreegen.repo.CustomTreeRepository;
+import com.davixdevelop.terracustomtreegen.repo.TreeData;
 import com.davixdevelop.terracustomtreegen.schematic.Schematic;
 import com.google.common.collect.ImmutableSet;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
@@ -51,8 +53,6 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 	protected static final Ref<byte[]> RNG_CACHE = ThreadRef.soft(() -> new byte[16 * 16]);
 	
-	public static final CustomTreeRepository TREE_REPO = new CustomTreeRepository();
-	
 	protected EarthGenerator generator;
 	
 	@Override
@@ -98,9 +98,11 @@ public class CustomTreePopulator implements IEarthPopulator {
 			}
 		}
 
+		TreeData tileTreeData = data.getCustom(TreeMapBaker.KEY_CUSTOM_TREE_REPO_TREE_MAP, new TreeData());
+
 
 		if(trees.size() > 0)
-			trees = TREE_REPO.getTreeGenerators(trees, world, biome, generator.projection, pos, random);
+			trees = TreeMapBaker.TREE_REPO.getTreeGenerators(trees, biome, tileTreeData, random);
 
 
 		if(trees.size() > 8)

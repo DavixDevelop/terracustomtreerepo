@@ -4,8 +4,6 @@ import com.davixdevelop.terracustomtreegen.PopulatorEventHandler;
 import com.davixdevelop.terracustomtreegen.repo.CustomTreeRepository;
 import com.davixdevelop.terracustomtreegen.repo.TreeBiome;
 import com.davixdevelop.terracustomtreegen.repo.TreeData;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import net.buildtheearth.terraplusplus.dataset.IScalarDataset;
 import net.buildtheearth.terraplusplus.generator.CachedChunkData;
 import net.buildtheearth.terraplusplus.generator.GeneratorDatasets;

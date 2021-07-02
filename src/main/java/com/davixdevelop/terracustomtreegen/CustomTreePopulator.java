@@ -2,7 +2,6 @@ package com.davixdevelop.terracustomtreegen;
 
 import com.davixdevelop.terracustomtreegen.baker.SegmentsBaker;
 import com.davixdevelop.terracustomtreegen.baker.TreeMapBaker;
-import com.davixdevelop.terracustomtreegen.repo.CustomTreeRepository;
 import com.davixdevelop.terracustomtreegen.repo.TreeData;
 import com.davixdevelop.terracustomtreegen.schematic.Schematic;
 import com.google.common.collect.ImmutableSet;

@@ -5,13 +5,13 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.buildtheearth.terraplusplus.dataset.builtin.AbstractBuiltinDataset;
 import net.buildtheearth.terraplusplus.util.RLEByteArray;
-import net.daporkchop.lib.binary.oio.StreamUtil;
-import net.daporkchop.lib.common.function.io.IOSupplier;
-import net.daporkchop.lib.common.ref.Ref;
+import net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.binary.oio.StreamUtil;
+import net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.common.function.io.IOSupplier;
+import net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.common.ref.Ref;
 
 import java.io.InputStream;
 
-import static net.daporkchop.lib.common.math.PMath.floorI;
+import static net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.common.math.PMath.floorI;
 
 /**
  * Represents a Continents dataset

@@ -2,7 +2,7 @@
 {
   "modid": "terracustomtreerepo",
   "name": "Terra++: Custom Tree Repo Add-on",
-  "description": "A TerraPlusPlus add-on that replace the tree generation. It includes features like improving the tree generation, by mixing vanilla Minecraft trees and trees from the Custom Tree Repository (https://www.planetminecraft.com/project/native-trees-of-europe-template-repository-1779952/) provided by @lentebriesje, offsetting trees from roads and disabling trees generating inside buildings (provided if the building isn't too big)",
+  "description": "A TerraPlusPlus add-on that replaces the tree generation. It includes features like improving the tree generation, by mixing vanilla Minecraft trees and trees from the Custom Tree Repository (https://www.planetminecraft.com/project/native-trees-of-europe-template-repository-1779952/) provided by @lentebriesje, offsetting trees from roads and disabling trees generating inside buildings (provided if the building isn't too big)",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "https://buildtheearth.net",

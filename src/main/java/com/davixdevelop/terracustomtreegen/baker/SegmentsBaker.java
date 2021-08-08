@@ -32,14 +32,14 @@ import net.buildtheearth.terraplusplus.generator.EarthGeneratorPipelines;
  *
  */
 public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
-	
+
 	public static final String KEY_CUSTOM_TREE_REPO_ROAD_SEGMENTS = "davixdevelop_terratreerepo_road_segments";
 	public static final String KEY_CUSTOM_TREE_REPO_FREEWAY_SEGMENTS = "davixdevelop_terratreerepo_freeway_segments";
 	public static final String KEY_CUSTOM_TREE_REPO_PATH_SEGMENTS = "davixdevelop_terratreerepo_path_segments";
 	public static final String KEY_CUSTOM_TREE_REPO_BUILDING_SEGMENTS = "davixdevelop_terratreerepo_building_segments";
-	
-	private static GeographicProjection PROJECTION; 
-	
+
+	private static GeographicProjection PROJECTION;
+
 	public static final Set<SegmentLinearFunc> FALLBACK_CUSTOM_TREE_REPO_SEGMENTS = new HashSet<>();
 	public static final Set<Set<SegmentLinearFunc>> FALLBACK_CUSTOM_TREE_REPO_POLYGONS = new HashSet<>();
 
@@ -59,7 +59,7 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 		int baseZ = Coords.cubeToMinBlock(pos.z);
 		Bounds2d chunkBounds = Bounds2d.of(baseX, baseX + 16, baseZ, baseZ + 16);
 		chunkBounds = chunkBounds.expand(16.0d);
-		
+
 		try {
 			for(GeoJsonObject[] objects : rawGsonObjects) {
 				for(GeoJsonObject object : objects) {
@@ -81,7 +81,7 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 					}
 				}
 			}
-			
+
 			builder.putCustom(KEY_CUSTOM_TREE_REPO_ROAD_SEGMENTS, segments.get(0).stream().flatMap(x -> x.lines.stream()).collect(Collectors.toSet()));
 			builder.putCustom(KEY_CUSTOM_TREE_REPO_FREEWAY_SEGMENTS, segments.get(1).stream().flatMap(x -> x.lines.stream()).collect(Collectors.toSet()));
 			builder.putCustom(KEY_CUSTOM_TREE_REPO_PATH_SEGMENTS, segments.get(2).stream().flatMap(x -> x.lines.stream()).collect(Collectors.toSet()));
@@ -90,8 +90,8 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 				builds.add(v.lines);
 			});
 			builder.putCustom(KEY_CUSTOM_TREE_REPO_BUILDING_SEGMENTS, builds);
-			
-			
+
+
 		}catch(OutOfProjectionBoundsException ex) {
 			TerraTreeRepoMod.LOGGER.error("Error while baking segment data");
 			ex.printStackTrace();
@@ -108,11 +108,13 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 		boolean hasTrees = false;
 
 		double[] treeCover = treeCoverF.join();
-		for (double v : treeCover)
-			if (v > 0.0d) {
-				hasTrees = true;
-				break;
-			}
+		if(treeCover != null){
+			for (double v : treeCover)
+				if (v > 0.0d) {
+					hasTrees = true;
+					break;
+				}
+		}
 
 
 		if(!hasTrees)
@@ -121,7 +123,7 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 		return datasets.<IElementDataset<GeoJsonObject[]>>getCustom(EarthGeneratorPipelines.KEY_DATASET_OSM_RAW)
 				.getAsync(bounds.expand(16.0d).toCornerBB(datasets.projection(), false).toGeo());
 	}
-	
+
 	/**
 	 * Convert's a feature to line segments
 	 * @param lines The list of set of line segments
@@ -135,13 +137,13 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 
 		if(feature.properties().containsKey("highway")) {
 			int lanes = -1;
-			boolean isMain = false; 
-			boolean isMinor = false; 
+			boolean isMain = false;
+			boolean isMinor = false;
 			boolean isSide = false;
 			boolean isFreeway = false;
 			boolean isPath = false;
 			String id = feature.id();
-			
+
 			for(Map.Entry<String, String> entry : feature.properties().entrySet()) {
 				String k = entry.getKey();
 				String v = entry.getValue();
@@ -176,9 +178,9 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 					lanes = Integer.parseInt(v);
 				}
 			}
-			
 
-			
+
+
 			double radius = 3.0d;
 			if(isFreeway)
 				radius = ((6 * lanes) >> 1) + 2;
@@ -202,7 +204,7 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 
 			else if(isPath)
 				radius = 1.0d;
-			
+
 			if(isMain || isMinor || isSide || isFreeway || isPath){
 				int ind = (isMain || isMinor || isSide) ? 0 : (isFreeway) ? 1 : 2;
 				List<RawSegments> rl = lines.get(ind);
@@ -222,10 +224,10 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 			}
 
 		}
-		
+
 		return lines;
 	}
-	
+
 	protected List<RawSegments> convertToPolygons(List<RawSegments> polygons, Feature feature) throws OutOfProjectionBoundsException {
 		if(feature.properties() == null)
 			return polygons;
@@ -233,7 +235,7 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 		if(feature.properties().containsKey("building")) {
 			String  id = feature.id();
 			Geometry geometry = feature.geometry();
-			
+
 			if(geometry instanceof Polygon) {
 				Polygon polygon = (Polygon) geometry;
 				polygons = convertPolygonToSegments(polygons, id, polygon);
@@ -243,9 +245,9 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 				for (Polygon polygon : multiPoly)
 					polygons = convertPolygonToSegments(polygons, id, polygon);
 			}
-			
+
 		}
-		
+
 		return polygons;
 	}
 
@@ -264,10 +266,10 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 
 		return  polygons;
 	}
-	
+
 	protected Set<SegmentLinearFunc> convertToSegments(Geometry geometry, double radius, Set<SegmentLinearFunc> segments){
 		Point[] points = new Point[0];
-		
+
 		if(geometry instanceof LineString) {
 			LineString lineString = (LineString) geometry;
 			points = lineString.points();
@@ -284,7 +286,7 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 				segments.add(seg);
 			}
 		}
-		
+
 		return segments;
 	}
 }

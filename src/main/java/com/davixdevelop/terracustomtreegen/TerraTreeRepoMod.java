@@ -8,15 +8,12 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = TerraTreeRepoMod.MODID,
-  name = TerraTreeRepoMod.NAME,
-  version = TerraTreeRepoMod.VERSION,
   dependencies = "after:terracommondatasets@[0.2,);required-after:terraplusplus@[0.1.519,)",
-  acceptableRemoteVersions = "*")
+  acceptableRemoteVersions = "*",
+  useMetadata = true)
 public class TerraTreeRepoMod
 {
     public static final String MODID = "terracustomtreerepo";
-    public static final String NAME = "Terra++: Custom Tree Repo addon";
-    public static final String VERSION = "0.2.4";
 
     public static Logger LOGGER;
 

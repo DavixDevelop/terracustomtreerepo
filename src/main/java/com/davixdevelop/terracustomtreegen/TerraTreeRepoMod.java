@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = TerraTreeRepoMod.MODID,
-  dependencies = "after:terracommondatasets@[0.2,);required-after:terraplusplus@[0.1.519,)",
+  dependencies = "after:terracommondatasets@[0.2,);required-after:terraplusplus@[0.1.627,)",
   acceptableRemoteVersions = "*",
   useMetadata = true)
 public class TerraTreeRepoMod

@@ -9,8 +9,8 @@ import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorldServer;
-import net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.common.ref.Ref;
-import net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.common.ref.ThreadRef;
+import net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.common.reference.ReferenceStrength;
+import net.buildtheearth.terraplusplus.dep.net.daporkchop.lib.common.reference.cache.Cached;
 import net.buildtheearth.terraplusplus.generator.CachedChunkData;
 import net.buildtheearth.terraplusplus.generator.EarthGenerator;
 import net.buildtheearth.terraplusplus.generator.EarthGeneratorPipelines;
@@ -50,7 +50,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 			Blocks.DARK_OAK_FENCE
 	);
 
-	protected static final Ref<byte[]> RNG_CACHE = ThreadRef.soft(() -> new byte[16 * 16]);
+	protected static final Cached<byte[]> RNG_CACHE = Cached.threadLocal(() -> new byte[16 * 16], ReferenceStrength.SOFT);
 	
 	protected EarthGenerator generator;
 	

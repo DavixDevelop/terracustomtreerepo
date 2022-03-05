@@ -7,6 +7,7 @@ import net.buildtheearth.terraplusplus.dataset.IElementDataset;
 import net.buildtheearth.terraplusplus.dataset.IScalarDataset;
 import net.buildtheearth.terraplusplus.dataset.geojson.GeoJsonObject;
 import net.buildtheearth.terraplusplus.dataset.geojson.Geometry;
+import net.buildtheearth.terraplusplus.dataset.geojson.dataset.TiledGeoJsonDataset;
 import net.buildtheearth.terraplusplus.dataset.geojson.geometry.*;
 import net.buildtheearth.terraplusplus.dataset.geojson.object.Feature;
 import net.buildtheearth.terraplusplus.dataset.geojson.object.FeatureCollection;
@@ -44,8 +45,8 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 	public static final Set<Set<SegmentLinearFunc>> FALLBACK_CUSTOM_TREE_REPO_POLYGONS = new HashSet<>();
 
 	@Override
-	public void bake(ChunkPos pos, Builder builder, GeoJsonObject[][] rawGsonObjects) {
-		if(rawGsonObjects == null)
+	public void bake(ChunkPos pos, Builder builder, GeoJsonObject[][] data) {
+		if(data == null)
 			return;
 
 		List<RawSegments> buildings = new ArrayList<>();
@@ -61,7 +62,7 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 		chunkBounds = chunkBounds.expand(16.0d);
 
 		try {
-			for(GeoJsonObject[] objects : rawGsonObjects) {
+			for(GeoJsonObject[] objects : data) {
 				for(GeoJsonObject object : objects) {
 					if(object instanceof Feature) {
 						Feature feature = (Feature) object;
@@ -104,23 +105,7 @@ public class SegmentsBaker implements IEarthDataBaker<GeoJsonObject[][]>{
 		if(PROJECTION == null)
 			PROJECTION = datasets.projection();
 
-		CompletableFuture<double[]> treeCoverF = datasets.<IScalarDataset>getCustom(EarthGeneratorPipelines.KEY_DATASET_TREE_COVER).getAsync(boundsGeo, 16, 16);
-		boolean hasTrees = false;
-
-		double[] treeCover = treeCoverF.join();
-		if(treeCover != null){
-			for (double v : treeCover)
-				if (v > 0.0d) {
-					hasTrees = true;
-					break;
-				}
-		}
-
-
-		if(!hasTrees)
-			return null;
-
-		return datasets.<IElementDataset<GeoJsonObject[]>>getCustom(EarthGeneratorPipelines.KEY_DATASET_OSM_RAW)
+		return datasets.<TiledGeoJsonDataset>getCustom(EarthGeneratorPipelines.KEY_DATASET_OSM_RAW)
 				.getAsync(bounds.expand(16.0d).toCornerBB(datasets.projection(), false).toGeo());
 	}
 

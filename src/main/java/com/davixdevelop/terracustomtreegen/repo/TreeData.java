@@ -9,4 +9,5 @@ import java.util.List;
  */
 public class TreeData implements java.io.Serializable{
 	public List<Integer> treeIndexes;
+	public double koppenClimateIndex;
 }

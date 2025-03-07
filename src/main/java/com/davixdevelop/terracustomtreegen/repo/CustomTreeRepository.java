@@ -72,10 +72,8 @@ public class CustomTreeRepository {
 	 * @return A array of objects, containing WordGenAbstractTree's and Schematics
 	 */
 	public List<CustomTreeGen> getTreeGenerators(List<CustomTreeGen> trees, Biome biome, TreeData tile, Random random) {
-
 		if (trees.size() != 0) {
 			int biomeId = Biome.getIdForBiome(biome);
-
 
 			// Find schematic indexes for location
 			List<Integer> schematicIndex = new ArrayList<Integer>();
@@ -100,36 +98,31 @@ public class CustomTreeRepository {
 				boolean vines = false;
 
 				//random.nextBoolean()
-				if(schematicIndex.size() > 0) {
+				if(!schematicIndex.isEmpty() && random.nextBoolean()){
 					// Add schematic indexes to selection
-					if(schematicIndex.size() > 0) {
-						//If ran out of trees, re-populate list
-						/*if(schematicIndex.size() == 0)
-							schematicIndex = new ArrayList<Integer>(schematicOrg);*/
-						int ran = random.nextInt(schematicIndex.size());
-						indexes.add(schematicIndex.get(ran));
-						schematicIndex.remove(ran);
-					}
-					else {
-						if (gen.getCanopy() <= LOWER_LIMIT) {
-							if (biomeId != 6) {
-								indexes.add(500);
-							} else {
-								indexes.add(501);
-							}
-						} else {
-							indexes.add(502);
-						}
-					}
+					int ran = random.nextInt(schematicIndex.size());
+					indexes.add(schematicIndex.get(ran));
+					schematicIndex.remove(ran);
 				}else {
 					// Check for vines
-					if (Arrays.asList(6, 21, 22, 134, 149, 151).contains(biomeId)) {
+					if (Arrays.asList(6, 21, 134, 149, 151).contains(biomeId) ||
+							(random.nextBoolean() && biomeId == 22)) {
 						vines = true;
 					}
 
+					int plainsChoice = random.nextInt(9);
+
 					// Oak
-					if (Arrays.asList(1, 4, 6, 7, 18, 19, 20, 21, 22, 129, 132, 134, 149, 151, 157, 163, 164)
-							.contains(biomeId)) {
+					// Conditionally add oak if biome is 23 (jungle edge)
+					// or 22 (jungle hills - rarer)
+					// or 131 (mutated extreme hills - very, very rare)
+					// or 3 (extreme hills - very rare)
+					if (Arrays.asList(4, 6, 7, 18, 19, 20, 21, 29, 129, 132, 134, 149, 157, 163, 164)
+							.contains(biomeId) ||
+							(biomeId == 1 && plainsChoice < 5) ||
+							(random.nextBoolean() && Arrays.asList(23, 151).contains(biomeId)) ||
+							(random.nextBoolean() && random.nextBoolean() && Arrays.asList(22, 3).contains(biomeId)) ||
+							(random.nextBoolean() && random.nextBoolean() && random.nextBoolean() && biomeId == 131)) {
 						if (gen.getCanopy() <= LOWER_LIMIT) {
 							if (biomeId != 6) {
 								indexes.add(500);
@@ -142,7 +135,18 @@ public class CustomTreeRepository {
 					}
 
 					// Spruce
-					if (Arrays.asList(1, 5, 11, 13, 20, 30, 31, 32, 33, 34, 133, 158, 160, 161).contains(biomeId)) {
+					// Conditionally add spruce if biome is 29 (roofed forest)
+					// or 129 (mutated plains)
+					// or 22 (jungle hills - rarer)
+					// or 132 (mutated forest)
+					// or 4 (forest - rarer)
+					// or 12 (ice plains - rarer)
+					// or 140 (mutated ice flats - very, very, very rare)
+					if (Arrays.asList(3, 5, 11, 13, 20, 30, 31, 32, 33, 34, 131, 133, 140, 158, 160, 161).contains(biomeId) ||
+							(biomeId == 1 && plainsChoice == 8) ||
+							(random.nextBoolean() && Arrays.asList(29, 129, 132).contains(biomeId)) ||
+							(random.nextBoolean() && random.nextBoolean() && Arrays.asList(22, 4, 12).contains(biomeId)) ||
+							(random.nextBoolean() && random.nextBoolean() && random.nextBoolean() && biomeId == 140)) {
 						if (gen.getCanopy() <= LOWER_LIMIT) {
 							indexes.add(503);
 						} else if (gen.getCanopy() >= UPPER_LIMIT) {
@@ -153,7 +157,23 @@ public class CustomTreeRepository {
 					}
 
 					// Birch
-					if (Arrays.asList(4, 18, 27, 28, 132, 155, 156, 157).contains(biomeId)) {
+					// Conditionally add birch if biome is 23 (jungle edge)
+					// or 151 (mutated jungle edge)
+					// or 22 (jungle hills - very, very rare)
+					// or 131 (mutated extreme hills - very, very rare)
+					// or 132 (mutated forest)
+					// or 3 (extreme hills - very, very rare)
+					// or 30 (cold taiga)
+					// or 161 (mutated redwood taiga hills)
+					// ot 6 (swampland, rarer)
+					// or 134 (swampland mutated)
+					// or 4 (forest)
+					// or 5 (taiga - rarer)
+					if (Arrays.asList(18, 27, 28, 29, 129, 132, 155, 156, 157).contains(biomeId) ||
+							(biomeId == 1 && plainsChoice < 8) ||
+							(random.nextBoolean() && Arrays.asList(23, 151, 132, 30, 161, 134, 4).contains(biomeId)) ||
+							(random.nextBoolean() && random.nextBoolean() && Arrays.asList(6, 5).contains(biomeId)) ||
+							(random.nextBoolean() && random.nextBoolean() && random.nextBoolean() && Arrays.asList(22, 131, 3).contains(biomeId))) {
 						if (gen.getCanopy() <= LOWER_LIMIT) {
 							indexes.add(506);
 						} else if (gen.getCanopy() >= UPPER_LIMIT) {
@@ -164,7 +184,9 @@ public class CustomTreeRepository {
 					}
 
 					// Jungle
-					if (Arrays.asList(21, 22, 149, 151).contains(biomeId)) {
+					// Conditionally add jungle is biome is 36 (savanna plateau)
+					if (Arrays.asList(21, 22, 23, 149, 151).contains(biomeId) ||
+							(random.nextBoolean() && biomeId == 36)) {
 						if (gen.getCanopy() <= LOWER_LIMIT) {
 							indexes.add(509);
 						} else if (gen.getCanopy() >= UPPER_LIMIT) {
@@ -175,7 +197,17 @@ public class CustomTreeRepository {
 					}
 
 					// Acacia
-					if (Arrays.asList(35, 36, 37, 38, 39, 163, 164, 165, 166, 167).contains(biomeId)) {
+					// Conditionally add birch if biome is 21 (jungle) or 6 (jungle) && climate is 3 (BWh)
+					// or 17 (desert hills) or 151 (mutated jungle edge)
+					// Or if climate is 6 (BSk) and biome is 2 (desert)
+					// Or 22 (jungle hills)
+					// or 131 (mutated extreme hills - very rare)
+					// or 132 (mutated forest)
+					if (Arrays.asList(35, 36, 37, 38, 39, 163, 164, 165, 166, 167).contains(biomeId) ||
+							(random.nextBoolean() && (Arrays.asList(21, 22, 17, 151, 132).contains(biomeId) || (biomeId == 2 && tile.koppenClimateIndex == 3.0))) ||
+							(random.nextBoolean() && random.nextBoolean() && biomeId == 131) ||
+							(tile.koppenClimateIndex == 6.0 && biomeId == 2)
+					) {
 						if (gen.getCanopy() <= LOWER_LIMIT) {
 							indexes.add(512);
 						} else if (gen.getCanopy() >= UPPER_LIMIT) {
@@ -194,23 +226,14 @@ public class CustomTreeRepository {
 							indexes.add(516);
 						}
 					}
-
-					// Default to oak
-					if (indexes.isEmpty()) {
-						if (gen.getCanopy() <= LOWER_LIMIT) {
-							if (biomeId != 6) {
-								indexes.add(500);
-							} else {
-								indexes.add(501);
-							}
-						} else {
-							indexes.add(502);
-						}
-					}
 				}
 
 
-
+				if(indexes.isEmpty()){
+					trees.remove(t);
+					t--;
+					continue;
+				}
 
 
 				// Select random tree type if biome has multiple tree types, otherwise select
@@ -224,79 +247,78 @@ public class CustomTreeRepository {
 					gen.loadTree(getTreeSchematic(indexes.get(sel)), 0);
 				} else {
 					switch (indexes.get(sel)) {
-					case 500: {
-						gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT,
-								BlockPlanks.EnumType.OAK), Blocks.LEAVES.getDefaultState()
-								.withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.OAK), vines), 4);
-					}
+						case 500:
+							gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT,
+									BlockPlanks.EnumType.OAK), Blocks.LEAVES.getDefaultState()
+									.withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.OAK), vines), 2);
+							break;
+						case 501:
+							gen.loadTree(new WorldGenSwamp(), 3);
+							break;
+						case 502:
+							gen.loadTree(new WorldGenBigTree(false), 3);
+							break;
+						case 503:
+							gen.loadTree(new WorldGenTaiga2(false), 2);
+							break;
+						case 504:
+							gen.loadTree(new WorldGenMegaPineTree(false, random.nextBoolean()), 2);
+							break;
+						case 505:
+							gen.loadTree(new WorldGenTaiga1(), 1);
+							break;
+						case 506: {
+							gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT,
+									BlockPlanks.EnumType.BIRCH), Blocks.LEAVES.getDefaultState()
+									.withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.BIRCH)
+									.withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
+						}
 						break;
-					case 501:
-						gen.loadTree(new WorldGenSwamp(), 3);
+						case 507:
+							gen.loadTree(new WorldGenBirchTree(false, true), 2);
+							break;
+						case 508:
+							gen.loadTree(new WorldGenBirchTree(false, false), 2);
+							break;
+						case 509: {
+							gen.loadTree(new WorldGenTrees(false, minTreeHeight + random.nextInt(7), Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT,
+									BlockPlanks.EnumType.JUNGLE), Blocks.LEAVES.getDefaultState()
+									.withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.JUNGLE)
+									.withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
+						}
 						break;
-					case 502:
-						gen.loadTree(new WorldGenBigTree(false), 3);
+						case 510: {
+							gen.loadTree(new WorldGenMegaJungle(false, minTreeHeight, random.nextInt(20), Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT,
+									BlockPlanks.EnumType.JUNGLE), Blocks.LEAVES.getDefaultState()
+									.withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.JUNGLE)
+									.withProperty(BlockLeaves.CHECK_DECAY, false)), 3);
+						}
 						break;
-					case 503:
-						gen.loadTree(new WorldGenTaiga2(false), 2);
+						case 511: {
+							gen.loadTree(new WorldGenTrees(false, minTreeHeight + random.nextInt(9), Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT,
+									BlockPlanks.EnumType.JUNGLE), Blocks.LEAVES.getDefaultState()
+									.withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.JUNGLE)
+									.withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
+						}
 						break;
-					case 504:
-						gen.loadTree(new WorldGenMegaPineTree(false, random.nextBoolean()), 2);
+						case 512: {
+							gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT,BlockPlanks.EnumType.ACACIA), Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT,BlockPlanks.EnumType.ACACIA).withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
+						}
 						break;
-					case 505:
-						gen.loadTree(new WorldGenTaiga1(), 1);
+						case 513: {
+							gen.loadTree(new WorldGenMegaJungle(false, minTreeHeight, random.nextInt(7), Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT,BlockPlanks.EnumType.ACACIA), Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT,BlockPlanks.EnumType.ACACIA).withProperty(BlockLeaves.CHECK_DECAY, false)), 3);
+						}
 						break;
-					case 506: {
-						gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT,
-								BlockPlanks.EnumType.BIRCH), Blocks.LEAVES.getDefaultState()
-								.withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.BIRCH)
-								.withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
-					}
+						case 514:
+							gen.loadTree(new WorldGenSavannaTree(false), 4);
+							break;
+						case 515: {
+							gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT,BlockPlanks.EnumType.DARK_OAK), Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT, BlockPlanks.EnumType.DARK_OAK).withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
+						}
 						break;
-					case 507:
-						gen.loadTree(new WorldGenBirchTree(false, true), 2);
-						break;
-					case 508:
-						gen.loadTree(new WorldGenBirchTree(false, false), 2);
-						break;
-					case 509: {
-						gen.loadTree(new WorldGenTrees(false, minTreeHeight + random.nextInt(7), Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT,
-								BlockPlanks.EnumType.JUNGLE), Blocks.LEAVES.getDefaultState()
-								.withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.JUNGLE)
-								.withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
-					}
-						break;
-					case 510: {
-						gen.loadTree(new WorldGenMegaJungle(false, minTreeHeight, random.nextInt(20), Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT,
-								BlockPlanks.EnumType.JUNGLE), Blocks.LEAVES.getDefaultState()
-								.withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.JUNGLE)
-								.withProperty(BlockLeaves.CHECK_DECAY, false)), 3);
-					}
-						break;
-					case 511: {
-						gen.loadTree(new WorldGenTrees(false, minTreeHeight + random.nextInt(9), Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT,
-								BlockPlanks.EnumType.JUNGLE), Blocks.LEAVES.getDefaultState()
-								.withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.JUNGLE)
-								.withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
-					}
-						break;
-					case 512: {
-						gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT,BlockPlanks.EnumType.ACACIA), Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT,BlockPlanks.EnumType.ACACIA).withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
-					}
-						break;
-					case 513: {
-						gen.loadTree(new WorldGenMegaJungle(false, minTreeHeight, random.nextInt(7), Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT,BlockPlanks.EnumType.ACACIA), Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT,BlockPlanks.EnumType.ACACIA).withProperty(BlockLeaves.CHECK_DECAY, false)), 3);
-					}
-						break;
-					case 514:
-						gen.loadTree(new WorldGenSavannaTree(false), 4);
-						break;
-					case 515: {
-						gen.loadTree(new WorldGenTrees(false, l, Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT,BlockPlanks.EnumType.DARK_OAK), Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT, BlockPlanks.EnumType.DARK_OAK).withProperty(BlockLeaves.CHECK_DECAY, false), vines), 2);
-					}
-						break;
-					case 516:
-						gen.loadTree(new WorldGenCanopyTree(false), 3);
-						break;
+						case 516:
+							gen.loadTree(new WorldGenCanopyTree(false), 3);
+							break;
 					}
 				}
 
@@ -358,7 +380,7 @@ public class CustomTreeRepository {
 					new SchematicOffset("european/EUR11L - Common Juniper.schematic", 3, 0, 4, 2),
 					new SchematicOffset("european/EUR18S - Maritime Pine.schematic", 4, 0, 7, 3),
 					new SchematicOffset("european/EUR4S - EU Beech.schematic", 6, 0, 5, 4),
-					new SchematicOffset("european/EUR11S - Common Juniper.schematic", 4, -1, 4, 2),
+					new SchematicOffset("european/EUR11S - Common Juniper.schematic", 4, 0, 4, 2),
 					new SchematicOffset("european/EUR19L - EU Black Pine.schematic", 4, 0, 6, 3),
 					new SchematicOffset("european/EUR5L - Blackthorn.schematic", 3, 0, 3, 3),
 					new SchematicOffset("european/EUR12L - Linden.schematic", 6, 3, 7, 4),
@@ -502,6 +524,8 @@ public class CustomTreeRepository {
 					new SchematicOffset("northamerican/NA9S - Lodgepole Pine.schematic", 6, 3, 6, 7),
 					new SchematicOffset("northamerican/NA1S - Red Maple.schematic", 4, 0, 3, 4) };
 
+			this.data.trees = new ArrayList<>();
+
 			for (int l = 0; l < treeList.length; l++) {
 				InputStream stream = this.getClass().getClassLoader()
 						.getResourceAsStream("assets/terracustomtreerepo/" + treeList[l].getSchematicName());
@@ -545,11 +569,11 @@ public class CustomTreeRepository {
 				String rawData = reader.readLine();
 				String[] data = rawData.split(";");
 				TreeBiome tmp = new TreeBiome();
-				tmp.continents = parseToIntegerList(data[0].trim());
-				tmp.treeL = parseToIntegerList(data[1].trim());
-				tmp.treeS = parseToIntegerList(data[2].trim());
-				tmp.biomes = parseToIntegerList(data[3].trim());
-				tmp.climate = parseToIntegerList(data[4].trim());
+				tmp.continents = parseToIntegerList(data[1].trim());
+				tmp.treeL = parseToIntegerList(data[2].trim());
+				tmp.treeS = parseToIntegerList(data[3].trim());
+				tmp.biomes = parseToIntegerList(data[4].trim());
+				tmp.climate = parseToIntegerList(data[5].trim());
 				out.add(tmp);
 			}else {
 				reader.readLine();

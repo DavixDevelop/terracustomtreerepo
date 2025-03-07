@@ -1,6 +1,9 @@
 - [0.3.0](https://github.com/DavixDevelop/terracustomtreerepo/releases/tag/0.3.0)
   - Compatibility bump to TerraPlusPlus 1.1.0.639+
   - Update to ForgeGradle 5.1+, Gradle 7.2 and Forge 14.23.5.2860
+  - Updated schematic tree map to include African tree schematics
+  - Updated schematic tree map to take into account missing special biomes like Sunflower Plains generated with terraimprovedbiomes
+  - Updated tree filter to mix in more vanilla trees
 
   >**Release note:** Use this version for post TerraPlusPlus 1.1.0.639 releases and use **Forge 14.23.5.2860**
 - [0.2.5](https://github.com/DavixDevelop/terracustomtreerepo/releases/tag/0.2.5)

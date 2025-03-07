@@ -7,7 +7,8 @@ import lzma
 import pickle
 
 class BiomeTree:
-    def __init__(self, continets, large, small, biomes, climates):
+    def __init__(self, leaf_type, continets, large, small, biomes, climates):
+        self.leaf_type = leaf_type
         self.continets = continets
         self.large = large
         self.small = small
@@ -48,12 +49,13 @@ def processMeta(task):
     for line in csvfile:
         if counter > 0:
             data = line.strip().split(';')
+            leaf_type = data[1]
             cont = parseToListTrim(data[3])
             larg = parseToList(data[5].strip())
             sma = parseToList(data[6].strip())
             bio = parseToList(data[7].strip())
             clim = parseToListTrim(data[8])
-            trees.append(BiomeTree(cont, larg, sma, bio, clim))
+            trees.append(BiomeTree(leaf_type, cont, larg, sma, bio, clim))
         else:
             counter = 1
     csvfile.close()
@@ -68,7 +70,7 @@ def processMeta(task):
         #lzc = lzma.open(out_file, 'wb',format=lzma.FORMAT_ALONE)
 
         csvfile = open(out_file, 'w')
-        csvfile.write("continents;large;small;biomes;climate\n")
+        csvfile.write("leaf_type;continents;large;small;biomes;climate\n")
 
         for t in trees:
             cindex = []
@@ -85,71 +87,12 @@ def processMeta(task):
                     clindex.append(ccode)
             clim = ','.join(map(str, clindex))
 
-            csvfile.write("{co};{la};{sm};{bi};{cl}\n".format(co=conti,la=larg,sm=sma,bi=bio,cl=clim))
+            ltyp = 0
+            if t.leaf_type == "Coniferous":
+                ltyp = 1
 
-        #long = (((360 - x) / (-2)) + ((360 - (x+ 1)) / (-2))) / 2
-        #lat = (((32400 - (y *180)) / 360) + ((32400 - ((y + 1) * 180)) / 360)) / 2
-        """
-        p = -1
-        cname = None
-        for x in range(0, 43200): #720
-
-            for y in range(0, 21600): #360
-
-                p += 1
-                #index = x * 360 + y
-                task.setProgress(int(round((p * 100) / 933120000)))
-
-                gcode = climti[y][x]
-
-                if gcode != 0:
-                    if cname is None or x % 720 == 0 and y % 360 == 0:
-                        long = (((x + 0.5) * 360) / 43200) - 180
-                        lat = (((y + 0.5) * 180) / 21600) - 90
-                        for feature in conti.getFeatures():
-                            if(feature.geometry().contains(QgsPointXY(long,lat))):
-                                cname = str(feature[1]).strip()
-                    if cname:
-                        if cname == "Australia" or cname == "Oceania":
-                            map_data[y][x][0] = 0;
-                            map_data[y][x][1] = "";
-                            #csvfile.write("{g};\n".format(g=index))
-                        else:
-
-                            for feature in climti.getFeatures():
-                                if(feature.geometry().contains(QgsPointXY(long,lat))):
-                                    gcode = int(feature[1])
-                                    break
-
-                            gclass = climate_mapping[gcode - 1]
-                            btindexes = []
-                            c = 0
-                            for bt in trees:
-                                if cname in bt.continets:
-                                    if gclass in bt.climates:
-                                        btindexes.append(c)
-                                c = c + 1
-                            if len(btindexes) > 0:
-                                btides = ','.join(map(str, btindexes))
-                                map_data[y][x][0] = len(btides);
-                                map_data[y][x][1] = btides;
-                                #csvfile.write("{g};{b}\n".format(g=index,b=btides))
-                            else:
-                                map_data[y][x][0] = 0;
-                                map_data[y][x][1] = "";
-                                #csvfile.write("{g};\n".format(g=index))
-                                #csvfile.write("{g};\n".format(g=index))
-                    else:
-                        map_data[y][x][0] = 0;
-                        map_data[y][x][1] = "";
-                else:
-                    map_data[y][x][0] = 0;
-                    map_data[y][x][1] = "";
-                    #csvfile.write("{g};\n".format(g=index))
-                """
-
-
-
+            csvfile.write("{lt};{co};{la};{sm};{bi};{cl}\n".format(lt=str(ltyp),co=conti,la=larg,sm=sma,bi=bio,cl=clim))
+        
         csvfile.close()
 
     except Exception as e:

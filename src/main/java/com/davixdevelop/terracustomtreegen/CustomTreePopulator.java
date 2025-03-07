@@ -22,22 +22,22 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.feature.WorldGenAbstractTree;
+import net.minecraft.world.gen.feature.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class CustomTreePopulator implements IEarthPopulator {
-	
+
 	public static final Set<Block> EXTRA_SURFACE = ImmutableSet.of(
-            Blocks.SAND,
-            Blocks.SANDSTONE,
-            Blocks.RED_SANDSTONE,
-            Blocks.CLAY,
-            Blocks.HARDENED_CLAY,
-            Blocks.STAINED_HARDENED_CLAY,
-            Blocks.SNOW,
-            Blocks.MYCELIUM);
+			Blocks.SAND,
+			Blocks.SANDSTONE,
+			Blocks.RED_SANDSTONE,
+			Blocks.CLAY,
+			Blocks.HARDENED_CLAY,
+			Blocks.STAINED_HARDENED_CLAY,
+			Blocks.SNOW,
+			Blocks.MYCELIUM);
 
 	public static final Set<Block> WOOD_BLOCKS = ImmutableSet.of(
 			Blocks.LOG,
@@ -51,14 +51,14 @@ public class CustomTreePopulator implements IEarthPopulator {
 	);
 
 	protected static final Cached<byte[]> RNG_CACHE = Cached.threadLocal(() -> new byte[16 * 16], ReferenceStrength.SOFT);
-	
+
 	protected EarthGenerator generator;
-	
+
 	@Override
 	public void populate(World world, Random random, CubePos pos, Biome biome, CachedChunkData datas[]) {
 		if(generator == null) {
-    		generator = (EarthGenerator) ((ICubicWorldServer) world).getCubeGenerator();
-    	}
+			generator = (EarthGenerator) ((ICubicWorldServer) world).getCubeGenerator();
+		}
 
 		byte[] rng = RNG_CACHE.get();
 
@@ -118,12 +118,12 @@ public class CustomTreePopulator implements IEarthPopulator {
 
 
 			if(roads.size() > 0) {
-				trees = offsetTrees(trees, roads, Blocks.CONCRETE, 2, 5,1, world, pos);
+				trees = offsetTrees(trees, roads, Blocks.CONCRETE, 2, 2,1, world, pos);
 			}
 
 
 			if(paths.size() > 0) {
-				trees = offsetTrees(trees, paths, Blocks.GRASS_PATH, 1, 2,1, world, pos);
+				trees = offsetTrees(trees, paths, Blocks.GRASS_PATH, 1, 0,1, world, pos);
 			}
 
 			if(freeways.size() > 0) {
@@ -140,87 +140,88 @@ public class CustomTreePopulator implements IEarthPopulator {
 				this.tryPlace(world, random, pos, trees.get(i));
 		}
 	}
-	
+
 	protected void tryPlace(World world, Random random, CubePos pos, CustomTreeGen gen) {
-        if (gen.top1 != null && this.canPlaceAt(world, gen.top1)) {
-            this.placeTree(world, random, gen);
-        }
-    }
+		if (gen.top1 != null && this.canPlaceAt(world, gen.top1)) {
+			this.placeTree(world, random, gen);
+		}
+	}
 
-    protected boolean canPlaceAt(World world, BlockPos pos) {
-        BlockPos down = pos.down();
-        IBlockState state = world.getBlockState(down);
+	protected boolean canPlaceAt(World world, BlockPos pos) {
+		BlockPos down = pos.down();
+		IBlockState state = world.getBlockState(down);
 
-        if(state.getBlock() == Blocks.WATER)
+		if(state.getBlock() == Blocks.WATER)
 			return false;
 
-        if (state.getBlock() != Blocks.GRASS && state.getBlock() != Blocks.DIRT) {
-            //plant a bit of dirt to make sure trees spawn when they are supposed to even in certain hostile environments
-            if (!this.isSurfaceBlock(world, down, state)) {
-                return false;
-            }
-            world.setBlockState(down, Blocks.GRASS.getDefaultState());
-        }
+		if (state.getBlock() != Blocks.GRASS && state.getBlock() != Blocks.DIRT) {
+			//plant a bit of dirt to make sure trees spawn when they are supposed to even in certain hostile environments
+			if (!this.isSurfaceBlock(world, down, state)) {
+				return false;
+			}
+			world.setBlockState(down, Blocks.GRASS.getDefaultState());
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    protected boolean isSurfaceBlock(World world, BlockPos pos, IBlockState state) {
-        return EXTRA_SURFACE.contains(state.getBlock());
-    }
+	protected boolean isSurfaceBlock(World world, BlockPos pos, IBlockState state) {
+		return EXTRA_SURFACE.contains(state.getBlock());
+	}
 
-    protected void placeTree(World world, Random random, CustomTreeGen gen) {
-    	if(gen.treeGen instanceof WorldGenAbstractTree) {
-    		((WorldGenAbstractTree)gen.treeGen).setDecorationDefaults();
-
-            if (((WorldGenAbstractTree)gen.treeGen).generate(world, random, gen.top1)) {
-            	((WorldGenAbstractTree)gen.treeGen).generateSaplings(world, random, gen.top1);
-            }
-    	}else {
-    		BlockPos blockPos = new BlockPos(gen.top1.getX(), gen.top1.getY(), gen.top1.getZ());
-    		IBlockState state = world.getBlockState(blockPos.down());
-    		if(state.getBlock() == Blocks.GRASS || EXTRA_SURFACE.contains(state.getBlock()))
+	protected void placeTree(World world, Random random, CustomTreeGen gen) {
+		if(gen.treeGen instanceof Schematic){
+			BlockPos blockPos = new BlockPos(gen.top1.getX(), gen.top1.getY(), gen.top1.getZ());
+			IBlockState state = world.getBlockState(blockPos.down());
+			if(state.getBlock() == Blocks.GRASS || EXTRA_SURFACE.contains(state.getBlock()))
 				Schematic.pasteSchematic(world, gen.top1.getX(), gen.top1.getY(), gen.top1.getZ(), (Schematic)gen.treeGen, random.nextInt(4));
-    	}
-    }
+		}else if(gen.treeGen instanceof WorldGenAbstractTree) {
+			((WorldGenAbstractTree) gen.treeGen).setDecorationDefaults();
 
-    protected  BlockPos surfaceBlock(int x, int z, World world, CubePos pos){
+			if (((WorldGenAbstractTree) gen.treeGen).generate(world, random, gen.top1)) {
+				((WorldGenAbstractTree) gen.treeGen).generateSaplings(world, random, gen.top1);
+			}
+		}
+
+	}
+
+	protected  BlockPos surfaceBlock(int x, int z, World world, CubePos pos){
 		return new BlockPos(x, this.quickElev(world, x, z, pos.getMinBlockY() - 10, pos.getMaxBlockY() + 10) + 1, z);
 	}
-    
-    protected int quickElev(World world, int x, int z, int low, int high) {
-        high++;
 
-        while (low < high - 1) {
-            int y = low + (high - low) / 2;
-            if (Schematic.ALLOWED_BLOCK.contains(world.getBlockState(new BlockPos(x, y, z)).getBlock())) {
-                high = y;
-            } else {
-                low = y;
-            }
-        }
+	protected int quickElev(World world, int x, int z, int low, int high) {
+		high++;
 
-        return low;
-    }
+		while (low < high - 1) {
+			int y = low + (high - low) / 2;
+			if (Schematic.ALLOWED_BLOCK.contains(world.getBlockState(new BlockPos(x, y, z)).getBlock())) {
+				high = y;
+			} else {
+				low = y;
+			}
+		}
+
+		return low;
+	}
 
 
-    /**
-     * Checks if trees canopy spread interact, and if they do, remove them
-     * @param  org_trees List of trees
-     * @param  random Java random
+	/**
+	 * Checks if trees canopy spread interact, and if they do, remove them
+	 * @param  org_trees List of trees
+	 * @param  random Java random
 	 * @param  world The Minecraft world
 	 * @param  pos The cube position
 	 * @param positiveOffset The offset to push tree, if it's difference from tree b is less than offset
 	 * @param negativeOffset The negative offset to decrease or increase the scan are around the tree
 	 * @param offset The offset between trees
 	 * @return Modified list of trees
-     */
-    protected List<CustomTreeGen> treeBounds(List<CustomTreeGen> org_trees, Random random, World world, CubePos pos, int positiveOffset, int negativeOffset, int offset) {
-    	List<CustomTreeGen> trees = new ArrayList<>(org_trees);
-    	if(random.nextBoolean())
-    		Collections.shuffle(trees);
+	 */
+	protected List<CustomTreeGen> treeBounds(List<CustomTreeGen> org_trees, Random random, World world, CubePos pos, int positiveOffset, int negativeOffset, int offset) {
+		List<CustomTreeGen> trees = new ArrayList<>(org_trees);
+		if(random.nextBoolean())
+			Collections.shuffle(trees);
 		else
-	 		trees = org_trees.stream().sorted(Comparator.comparingInt(CustomTreeGen::getCanopyRadius)).collect(Collectors.toList());
+			trees = org_trees.stream().sorted(Comparator.comparingInt(CustomTreeGen::getCanopyRadius)).collect(Collectors.toList());
 
 		try {
 			List<CustomTreeGen> diff = new ArrayList<>();
@@ -310,8 +311,8 @@ public class CustomTreePopulator implements IEarthPopulator {
 			ex.printStackTrace();
 		}
 
-    	return org_trees;
-    }
+		return org_trees;
+	}
 
 	/**
 	 * Check's if a log exists around the canopy area of the tree with a negative offset
@@ -320,11 +321,11 @@ public class CustomTreePopulator implements IEarthPopulator {
 	 * @param negativeOffset The negative offset to decrease the scan are around the tree
 	 * @return The result of the trees
 	 */
-    protected boolean checkVicinity(CustomTreeGen gen, World world, int negativeOffset){
+	protected boolean checkVicinity(CustomTreeGen gen, World world, int negativeOffset){
 
-    	int offset = gen.getCanopyRadius();
-    	if(gen.getCanopyRadius() - negativeOffset > 0){
-    		offset = gen.getCanopyRadius() - negativeOffset;
+		int offset = gen.getCanopyRadius();
+		if(gen.getCanopyRadius() - negativeOffset > 0){
+			offset = gen.getCanopyRadius() - negativeOffset;
 		}
 		int rl = gen.top1.getX() + offset;
 		int tl = gen.top1.getZ() + offset;
@@ -352,22 +353,22 @@ public class CustomTreePopulator implements IEarthPopulator {
 				}
 			}
 		}
-    	return false;
+		return false;
 	}
-	
-    /**
-     * Checks if trees lies less than the offset from the segment and moves it back, specified by the positiveOffset and returns them
-     * @param trees The input tree list
-     * @param segments The input segments
-     * @param segBlock The block of the segment
-     * @param offset The check offset
-     * @param positiveOffset The offset to push back trees
-     * @param world The Minecraft world
-     * @param pos The CubePos
-     * @return List of trees
-     */
-    protected List<CustomTreeGen> offsetTrees(List<CustomTreeGen> trees, Set<SegmentLinearFunc> segments, Block segBlock, int offset, int positiveOffset, int negativeOffset , World world, CubePos pos) {
-    	for(Iterator<CustomTreeGen> it = trees.iterator(); it.hasNext();) {
+
+	/**
+	 * Checks if trees lies less than the offset from the segment and moves it back, specified by the positiveOffset and returns them
+	 * @param trees The input tree list
+	 * @param segments The input segments
+	 * @param segBlock The block of the segment
+	 * @param offset The check offset
+	 * @param positiveOffset The offset to push back trees
+	 * @param world The Minecraft world
+	 * @param pos The CubePos
+	 * @return List of trees
+	 */
+	protected List<CustomTreeGen> offsetTrees(List<CustomTreeGen> trees, Set<SegmentLinearFunc> segments, Block segBlock, int offset, int positiveOffset, int negativeOffset , World world, CubePos pos) {
+		for(Iterator<CustomTreeGen> it = trees.iterator(); it.hasNext();) {
 			CustomTreeGen gen = it.next();
 
 			if(gen.top1 == null){
@@ -375,78 +376,78 @@ public class CustomTreePopulator implements IEarthPopulator {
 				continue;
 			}
 
-			
+
 			boolean removeTree = false;
-			
+
 			for(SegmentLinearFunc seg : segments) {
 
 				if((gen.top1.getX() >= seg.getAx() && gen.top1.getX() <= seg.getBx())
 						|| (gen.top1.getZ() <= seg.getBy() && gen.top1.getZ() >= seg.getAy())) {
 					//Check if tree is within segment bounds
 					int[] T = {gen.top1.getX(), gen.top1.getZ()};
-					
+
 					if(!seg.isConstantX() && !seg.isConstantY()) {
 						//Remove tree is the rare chance that the tree lies directly on the middle of the road
-    					if(seg.getX(T[1]) == T[0] && seg.getY(T[0]) == T[1]) {
-    						removeTree = true;
-    						break;
-    					}
-    					
-    					//Slope perpendicular line r on line p
-    					double k2 = - (1 / seg.getK());
-    					//Section of ordinate from line r 
-    					double n2 = T[1] - k2 * T[0];
-    					
-    					//Intersection of lines p and r
-    					double Px = (n2 - seg.getN()) / (seg.getK() - k2);
-    					double Py = seg.getK() * Px + seg.getN();
-    					
-    					//Distance between intersection P and point T
-    					double a = Math.sqrt(Math.pow(T[0] - Px, 2) + Math.pow(T[1] - Py , 2));
-    					
-    					//If tree is situated less than 2m from the edge of the segment or lies on the road, move it back
-    					if(a - seg.getR() - gen.getCanopyRadius() <= offset) {
-    						
-    						//Point R on line p
-    						double[] R = {T[0], seg.getY(T[0])};
-    						//Hypotenuse between point T and R
-     						double c = Math.abs(T[1] - R[1]);
-     						
-     						//Alpha angle in point T
-    						double alpha = Math.toDegrees(Math.acos(a / c));
+						if(seg.getX(T[1]) == T[0] && seg.getY(T[0]) == T[1]) {
+							removeTree = true;
+							break;
+						}
+
+						//Slope perpendicular line r on line p
+						double k2 = - (1 / seg.getK());
+						//Section of ordinate from line r
+						double n2 = T[1] - k2 * T[0];
+
+						//Intersection of lines p and r
+						double Px = (n2 - seg.getN()) / (seg.getK() - k2);
+						double Py = seg.getK() * Px + seg.getN();
+
+						//Distance between intersection P and point T
+						double a = Math.sqrt(Math.pow(T[0] - Px, 2) + Math.pow(T[1] - Py , 2));
+
+						//If tree is situated less than 2m from the edge of the segment or lies on the road, move it back
+						if(a - seg.getR() - gen.getCanopyRadius() <= offset) {
+
+							//Point R on line p
+							double[] R = {T[0], seg.getY(T[0])};
+							//Hypotenuse between point T and R
+							double c = Math.abs(T[1] - R[1]);
+
+							//Alpha angle in point T
+							double alpha = Math.toDegrees(Math.acos(a / c));
 
 							if(Double.isNaN(alpha))
 								alpha = Math.toDegrees(Math.cos(a / c));
-    						
-    						//Distance between intersection P and point T2
-    						double a1 = seg.getR() + positiveOffset + gen.getCanopyRadius();
-    						//New hypotenuse
-    						double c1 = a1 / Math.cos(Math.toRadians(alpha));
-    						
-    						//Section of ordinate from line q
-    						double n3 = (T[1] > R[1]) ? seg.getN() + c1 : seg.getN() - c1;
-    						
-    						//Intersection between line r and q
-    						double T2x = (n2 - n3) / (seg.getK() - k2);
-    						double T2y = seg.getK() * T2x + n3;
-    						
-    						int actualX = (int)Math.round(T2x);
-    						int actualZ = (int)Math.round(T2y);
-    						
-    						//gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
+
+							//Distance between intersection P and point T2
+							double a1 = seg.getR() + positiveOffset + gen.getCanopyRadius();
+							//New hypotenuse
+							double c1 = a1 / Math.cos(Math.toRadians(alpha));
+
+							//Section of ordinate from line q
+							double n3 = (T[1] > R[1]) ? seg.getN() + c1 : seg.getN() - c1;
+
+							//Intersection between line r and q
+							double T2x = (n2 - n3) / (seg.getK() - k2);
+							double T2y = seg.getK() * T2x + n3;
+
+							int actualX = (int)Math.round(T2x);
+							int actualZ = (int)Math.round(T2y);
+
+							//gen.top1 = new BlockPos(actualX, this.quickElev(world, actualX, actualZ, pos.getMinBlockY() - 1, pos.getMaxBlockY()) + 1, actualZ);
 							gen.top1 = surfaceBlock(actualX, actualZ, world, pos);
 							gen.movedBack = true;
 
 							if(checkVicinity(gen, world, negativeOffset))
 								removeTree = true;
 
-    						continue;
-    					}
+							continue;
+						}
 					}else if(seg.isConstantY()) {
 						double Py = seg.getY(0);
 						if(Math.abs(T[1] - Py) - gen.getCanopyRadius() <= offset) {
 							double T2y = (Py < T[1]) ? Py + seg.getR() + positiveOffset + gen.getCanopyRadius() : Py - seg.getR() - positiveOffset - gen.getCanopyRadius();
-							
+
 							int actualX = T[0];
 							int actualZ = (int)Math.round(T2y);
 
@@ -456,14 +457,14 @@ public class CustomTreePopulator implements IEarthPopulator {
 							if(checkVicinity(gen, world, negativeOffset))
 								removeTree = true;
 
-    						continue;
+							continue;
 						}
-						
+
 					}else if(seg.isConstantX()) {
 						double Px = seg.getX(0);
 						if(Math.abs(T[0] - Px) - gen.getCanopyRadius() <= offset) {
 							double T2x = (Px < T[0]) ? Px + seg.getR() + positiveOffset + gen.getCanopyRadius() : Px - seg.getR() - positiveOffset - gen.getCanopyRadius();
-							
+
 							int actualX = (int)Math.round(T2x);
 							int actualZ = T[1];
 
@@ -473,12 +474,12 @@ public class CustomTreePopulator implements IEarthPopulator {
 							if(checkVicinity(gen, world, negativeOffset))
 								removeTree = true;
 
-    						continue;
+							continue;
 						}
 					}
 				}
 			}
-			
+
 			if(removeTree) {
 				it.remove();
 				continue;
@@ -555,8 +556,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 						 */
 
 						it.remove();
-						continue;
-					}
+                    }
 				} else if(T[1] == P[1]) { //Constant y
 
 					if(Math.abs(T[0] - P[0]) - gen.getCanopyRadius() <= offset) {
@@ -574,8 +574,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 						 */
 
 						it.remove();
-						continue;
-					}
+                    }
 
 				} else if(T[0] == P[0]) { //Constant x
 
@@ -596,31 +595,29 @@ public class CustomTreePopulator implements IEarthPopulator {
 						 */
 
 						it.remove();
-						continue;
-					}
+                    }
 
 				}
 
 			}else if(T[0] == P[0] && T[1] == P[1]) {
 				//Remove tree if lies on segment
 				it.remove();
-				continue;
-			}
+            }
 
 		}
-    	return trees;
-    }
-    
-    /**
-     * Check if trees are inside building, and remove them if the do
-     * @param trees List of trees
-     * @param buildings Set of buildings
-     * @return List of trees
-     */
-    protected List<CustomTreeGen> checkForBuildings(List<CustomTreeGen> trees, Set<Set<SegmentLinearFunc>> buildings, CubePos pos) {
-    	//buildings = closeBuildings(buildings, pos);
-    	
-    	for(Iterator<CustomTreeGen> it = trees.iterator(); it.hasNext();) {
+		return trees;
+	}
+
+	/**
+	 * Check if trees are inside building, and remove them if the do
+	 * @param trees List of trees
+	 * @param buildings Set of buildings
+	 * @return List of trees
+	 */
+	protected List<CustomTreeGen> checkForBuildings(List<CustomTreeGen> trees, Set<Set<SegmentLinearFunc>> buildings, CubePos pos) {
+		//buildings = closeBuildings(buildings, pos);
+
+		for(Iterator<CustomTreeGen> it = trees.iterator(); it.hasNext();) {
 			CustomTreeGen gen = it.next();
 
 			for(Set<SegmentLinearFunc> building : buildings) {
@@ -628,7 +625,7 @@ public class CustomTreePopulator implements IEarthPopulator {
 				for(SegmentLinearFunc seg : building) {
 					if(!seg.isConstantX()) {
 						double Px = seg.getX(gen.top1.getZ());
-						
+
 						if(gen.top1.getX() <= Px)
 							count++;
 					}else {
@@ -636,15 +633,14 @@ public class CustomTreePopulator implements IEarthPopulator {
 							count++;
 					}
 				}
-				
+
 				if(count % 2 != 0) {
 					it.remove();
 					break;
 				}
 			}
-    	}
-    	
-    	
-    	return trees;
-    }
+		}
+
+		return trees;
+	}
 }

@@ -38,6 +38,7 @@ public class TreeMapBaker implements IEarthDataBaker<TreeMapBaker.Data> {
         if(data !=null){
             double climate = data.climates[128];
             double continent = data.continents[128];
+            treeData.koppenClimateIndex = climate;
 
 
             if(climate != 0 && continent != 0){

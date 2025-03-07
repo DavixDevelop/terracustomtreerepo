@@ -1,0 +1,77 @@
+name;wat;climatetext;continent;biometext;large;small;biome;climate
+Alder;Deciduous;Continental, Moderate;Asia,Europe,North America;extreme hills, extreme hills edge, forest, forest hills, plains, swamp,mutated forest,dark_forest ;16;19;3,20,4,18,1,6,132,29;Dfb,Dfc,Dfd,Dsc,Dsd,Dwc,Dwd,Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc
+Aspen;Deciduous;Subarctic, Tundra;Europe,North America;Taiga, Taiga hills,mutated plains;30;33;5,30,31,32,33,19,4,129;Csb,Dfa,Dfb,Dfc,Dfd,Dsc,Dsd,Dwc,Dwd,EF,ET
+Blackthorn;Deciduous;Moderate, Humid Continental;Africa,Asia,Europe,North America;forest, forest hills, plains, swamp,dark_forest,mutated forest;11;14;4,18,1,6,29,132;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc,Dfa,Dfb,Dsa,Dsb,Dwa,Dwb
+Common Ash;Deciduous;Moderate, Humid Continental, Semiarid;Europe;extreme hills, extreme hills edge, forest, forest hills, plains, swamp,dark_forest,mutated forest;34;37;3,20,4,18,1,6,29,132;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc,Dfa,Dfb,Dsa,Dsb,Dwa,Dwb,BSk,BSh
+Common Hawthorn;Deciduous;Moderate;Africa,Asia,Europe;extreme hills, extreme hills edge, forest, forest hills, plains, swamp,mutated forest,dark_forest ;23;26;3,20,4,18,1,6,29,132;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc,Dfb
+Common Juniper;Coniferous;Continental, Moderate;Asia,Europe,North America;extreme hills, extreme hills edge, forest, forest hills, plains, swamp,dark_forest,taiga,ice plains;6;9;3,20,4,18,1,6,29,5,12;Dfb,Dfc,Dfd,Dsc,Dsd,Dwc,Dwd,Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc,ET
+European Beech;Deciduous;Moderate, Humid continental;Europe;extreme hills, extreme hills edge, forest, forest hills, plains, swamp,dark_forest,mutated forest;5;8;3,20,4,18,1,6,29,132;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc,Dfa,Dfb,Dsa,Dsb,Dwa,Dwb
+European Black Pine;Coniferous;Mediterranean;Africa,Europe;plains,extreme hills, extreme hills edge, forest hills,mutated plains,mutated forest;10;13;1,3,20,18,129,132,29;Csa,Csb,Cfa,Cfb,Dfb
+European Holly;Deciduous;Moderate;Africa, Asia, Europe;extreme hills, extreme hills edge, forest, forest hills, plains,mutated forest,dark_forest,taiga;0;3;3,20,4,18,1,132,5,29;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc,Dfb,Dfc
+European Hornbeam;Deciduous;Moderate, semiarid;Asia, Europe ;extreme hills, extreme hills edge, forest hills,mutated forest,dark_forest,taiga;35;38;3,20,18,132,29,5;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc,BSk,BSh,Dfb,Dfc
+European Larch;Coniferous;Moderate;Europe;extreme hills, extreme hills edge, forest hills,dark_forest,taiga;28;31;3,20,18,29,5;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc,Dfb,Dfc
+European Rowan;Deciduous;Moderate;Asia, Europe;extreme hills, extreme hills edge, forest, forest hills, plains,dark_forest,taiga;36;36;3,20,4,18,1,29,5;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc,Dfb,Dfc
+Hazel;Deciduous;Moderate, Humid continental;Europe, North America;extreme hills, extreme hills edge, forest, forest hills, plains, swamp,dark_forest,mutated forest;29;32;3,20,4,18,1,6,29,132;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc,Dfa,Dfb,Dsa,Dsb,Dwa,Dwb
+Linden;Deciduous;Moderate;Europe;forest, forest hills, plains, swamp,dark_forest,mutated forest,extreme hills;12;15;4,18,1,6,29,132,3;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc
+Maritime Pine;Coniferous;Marine west coast;Europe;extreme hills, extreme hills edge, forest, foresthills,plains,mutated plains;4;7;3,20,4,18,1,129;Cfb,Csa,Csb
+Norway Spruce;Coniferous;Continental ;Europe;extreme hills, extreme hills edge, forest, foresthills, plains, taiga, taiga hills,dark_forest;22;25;29,3,20,4,18,1,5,30,31,32,33,19;Dfb,Dfc,Dfd,Dsc,Dsd,Dwc,Dwd
+Scots Pine;Coniferous;Continental, Marine west coast;Europe,Asia;extreme hills, extreme hills edge, forest, foresthills, plains, taiga, taiga hills,dark_forest,mesa rock;24;27;3,20,4,18,1,5,30,31,32,33,19,29,38;Dfb,Dfc,Dfd,Dsc,Dsd,Dwc,Dwd,Cfb
+Sesille Oak;Deciduous;Moderate;Europe;extreme hills, extreme hills edge, forest, forest hills, plains, swamp,mutated forest;18;21;3,20,4,18,1,6,132;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc
+Silver Birch;Deciduous;Moderate;Europe;extreme hills, extreme hills edge, forest, forest hills, plains, swamp,mutated forest,mutated plains ;2;40;3,20,4,18,1,6,132,129;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc
+Smooth-Leaved Elm;Deciduous;Mediterranean, Humid subtropical;Europe;forest, forest hills, plains, swamp,mutated forest,dark_forest;17;20;4,18,1,6,132,29;Csa,Csb,Cfb,Cfa,Dfb
+White Willow;Deciduous;Moderate;Asia,Europe;extreme hills, extreme hills edge, forest, forest hills, plains, swamp,mutated forest;1;39;3,20,4,18,1,6,132;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc
+Tamboti;Deciduous;Semiarid, Tropical Wet and Dry;Africa;savanna, mutated jungle edge;41;44;35,151;BSh,Cwa
+Grandidier's Baobab;Deciduous;Arid;Africa;savanna, desert;65;42;35,2;BSh,Aw,BWh
+Knobthorn;Deciduous;Semiarid, Tropical Wet and Dry;Africa;savanna, jungle, mutated jungle edge, mutated plains;43;46;35,21,151,129;BSh,Aw
+African Baobab;Deciduous;Semiarid, Tropical Wet and Dry;Africa;savanna, desert, jungle, mutated jungle edge, mutated plains;45;48;35,2,21,151,129;BSh,Aw,BWh
+Umbrella Thorn;Deciduous;Semiarid, Arid, Tropical Wet and Dry;Africa;savanna, desert, jungle edge, jungle, mutated jungle edge, jungle hills, mutated plains;47;50;35,2,23,21,151,22,129;BSh,Aw,BWh
+Marula;Deciduous;Semiarid, Tropical Wet and Dry;Africa;savanna, jungle edge, desert, jungle, mutated jungle edge, jungle hills;49;52;35,23,2,21,151,22;BSh,Aw
+Buffalo Thorn;Deciduous;Semiarid, Tropical Wet and Dry;Africa;savanna, jungle edge, desert;51;54;35,23,2;BSh,Aw,BWh
+Huilboerboon;Deciduous;Semiarid, Tropical Wet and Dry;Africa;savanna, jungle edge, desert;53;56;35,23,2;BSh,Aw
+Mopane;Deciduous;Semiarid, Tropical Wet and Dry, Arid;Africa;savanna, jungle edge, desert, jungle, jungle hills, mutated plains;55;58;35,23,2,21,22,129;BSh,Aw,BWh
+Bushwillow;Deciduous;Semiarid, Tropical Wet and Dry;Africa;savanna, jungle edge, jungle, mutated jungle edge, jungle hills, mutated plains;57;60;35,23,21,151,22,129;BSh,Aw
+Candelabra;Deciduous;Arid, Semiarid;Africa;desert, jungle edge, jungle hills;59;62;2,23,22;BWh,BSh
+Sausage Tree;Deciduous;Semiarid, Tropical Wet and Dry;Africa;savanna, jungle edge, mutated jungle edge, mutated plains;61;64;35,23,151,129;BSh,Aw
+Jackalberry;Deciduous;Semiarid, Tropical Wet and Dry, Tropical Wet;Africa;savanna, savanna plateau, jungle, jungle edge, jungle hills;63;66;35,36,21,23,22;BSh,Aw,Af
+Alaska Cedar;Coniferous;Mediterranean, Marine west coast;North America;extreme hills, extreme hills edge, forest, foresthills, plains, taiga, taiga hills,ice mountains;137;139;3,20,4,18,1,5,30,31,32,33,19,13;Csa,Csb,Cfb,Dfc,Dfd
+American Basswood;Coniferous;Humid continental;North America;extreme hills, extreme hills edge, forest, foresthills, plains,dark_forest,taiga;125;127;3,20,4,18,1,29,5;Dfa,Dfb,Dfc,Dsa,Dsb,Dwa,Dwb
+American Beech;Deciduous;Humid continental, humid subtropical;North America;extreme hills, extreme hills edge, forest, foresthills, plains,dark_forest,mesa rock;121;123;3,20,4,18,1,29,38;Dfa,Dfb,Dsa,Dsb,Dwa,Dwb,Cfb,Cfa
+Atlantic White Cedar;Coniferous;Humid subtropical;North America;forest, foresthills, plains,dark_forest;141;143;4,18,1,29;Cfb,Cfa,Dfa,Dfb
+Baldcypress;Coniferous;Humid Subtropical;North America,Asia;plains, swamp,mutated forest,mesa rock;133;135;1,6,132,38;Cfb,Cfa,Dsb
+Balsam Fir;Coniferous;Subarctic;North America,Europe;Forest, Foresthills, Taiga, Taiga Hills,dark_forest;130;132;4,18,5,30,31,32,33,19,29;Dfb,Dfc,Dfd,Dsc,Dsd,Dwc,Dwd
+Californian Red Fir;Coniferous;Highlands;North America;Extreme hills, Extreme hills edge, taiga hills,taiga;145;147;3,20,19,5;Aw,Dsb,Dfc
+Douglas Fir;Coniferous;Highlands, Marine West Coast;North America;Extreme hills, extreme hills edge, forest, foresthills, taiga, taiga hills,dark_forest;134,138;136;3,20,4,18,5,30,31,32,33,19,29;Aw,Dsb,Dfb,Cfb
+Flowering Dogwood;Deciduous;Humid continental, humid subtropical;North America;Extreme hills, Extreme hills edge, forest, foresthills, plains,dark_forest,mutated forest;144;146;3,20,4,18,1,29,132;Dfa,Dfb,Dsa,Dsb,Dwa,Dwb,Cfb,Cfa
+Fraser Fir;Coniferous;Humid continental, humid subtropical;North America;extreme hills,dark_forest,taiga;110;112;3,29,5;Dfa,Dfb,Dfc,Dsa,Dsb,Dwa,Dwb,Cfb,Cfa
+Grand Fir;Coniferous;Marine West Coast, Semiarid;North America;Extreme hills, extreme hills edge, forest, foresthills, plains,taiga;114;116;3,20,4,18,1,5;Cfb,BSk,BSh,Dfc
+Green Ash;Deciduous;Continental, Humid subtropical;North America;extreme hills, extreme hills edge, forest, foresthills, plains, taiga, taiga hills;117;119;3,20,4,18,1,5,30,31,32,33,19;Dfa,Dfc,Dfd,Dsc,Dsd,Dwc,Dwd,Cfb,Cfa
+Loblolly Pine;Coniferous;Humid subtropical;North America,Asia;Forest, Forest hills, plains,mutated forest,mesa rock;122;124;4,18,1,132,38;Cfb,Cfa,Dsb
+Lodgepole Pine;Coniferous;Highlands, Marine West Coast, Semiarid;North America;extreme hills, extreme hills edge, forest, foresthills, plains, taiga, taiga hills,mesa rock;148;150;3,20,4,18,1,5,30,31,32,33,19,38;Aw,Dsb,Cfb,BSk,BSh,Dfc,Dsb
+Paper Birch;Deciduous;Subarctic;North America;forest, foresthills, taiga, taiga hills, plains;129;131;4,18,5,30,31,32,33,19,1;Dfc,Dfd,Dsc,Dsd,Dwc,Dwd
+Quaking Aspen;Deciduous;Highlands, subarctic;North America;forest, foresthills, taiga, taiga hills, plains,mutated plains;140;142;4,18,5,30,31,32,33,19,1,129;Aw,Dsb,Dfc,Dfd,Dsc,Dsd,Dwc,Dwd,Csb
+Red Alder;Deciduous;Marine West coast ;North America;Forest, Foresthills, plains,mutated forest,mutated plains;113;115;4,18,1,132,129;Cfb,Csb
+Red Maple;Deciduous;Humid continental, humid subtropical;North America;extreme hills, extreme hills edge, forest, foresthills, plains,dark_forest,mutated forest;149;151;3,20,4,18,1,29,132;Dfa,Dfb,Dsa,Dsb,Dwa,Dwb,Cfb,Cfa
+Sugar Maple;Deciduous;Humid continental;North America;Extreme hills, extreme hills edge, forest, foresthills, plains,dark_forest;118;120;3,20,4,18,1,29;Dfa,Dfb,Dsa,Dsb,Dwa,Dwb
+Sweetgum;Deciduous;Moderate;Asia, North America;forest, foresthills, plains,mutated forest;126;128;4,18,1,132;Csa,Csb,Csc,Cwa,Cwb,Cwc,Cfa,Cfb,Cfc
+White Oak;Deciduous;Humid continental, humid subtropical;North America;forest, foresthills, plains,dark_forest,mutated forest;109;111;4,18,1,29,132;Dfa,Dfb,Dsa,Dsb,Dwa,Dwb,Cfb,Cfa
+astronium fraxinifolium;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;94;96;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+astronium Juari;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;86;88;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+astronium Leicontei;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;98;100;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Awarra;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;90;92;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Babassu Palm;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;102;104;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Brazil nut;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;67;69;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Cashapona;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;70;72;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Cinchona ledgeriana;Deciduous;Highlands;South America;extreme hills, extreme hills edge, jungle hills,jungle;71;73;3,20,22,21;Af,BWk,ET,Cfa
+Fiber Palm;Deciduous;Tropical;South America;jungle, swamp;82;84;21,23,149,151,6;Af,Am,As,Aw
+Hancornia speciosa;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;75;77;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Leopoldinia piassaba;Deciduous;Tropical;South America;jungle, swamp;87;89;21,23,149,151,6;Af,Am,As,Aw
+Maripa Palm;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;95;97;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Myrciaria;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;91;93;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Parica;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;78;80;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Peach Palm;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;106;108;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Platypodium;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;99;101;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Rubber Tree;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;79;81;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Sandbox tree;Deciduous;Tropical;North America, South America;forest, foresthills, jungle, jungle hills, plains, swamp;83;85;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Soncoya;Deciduous;Tropical;North America, South America;forest, foresthills, jungle, jungle hills, plains, swamp;68;107;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Theobroma Cacao;Deciduous;Tropical;South America;forest, foresthills, jungle, jungle hills, plains, swamp;74;76;4,18,21,23,149,151,22,1,6;Af,Am,As,Aw
+Yagrumo Macho;Deciduous;Highlands, Tropical;North America, South America;forest, foresthills, jungle, jungle hills, plains, swamp;103;105;4,18,21,23,149,151,22,1,6;Aw,Dsb,BWk,ET,Cfa,Af,Am,As,Aw
